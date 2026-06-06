@@ -1,0 +1,96 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dataqualitykit"
+version = "0.1.0"
+description = "A batteries-included dataset quality testing framework for ML teams"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = ["dataset", "quality", "machine-learning", "data-validation", "mlops"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "pandas>=2.0",
+    "polars>=0.20",
+    "pyarrow>=14.0",
+    "pydantic>=2.0",
+    "typer>=0.12",
+    "rich>=13.0",
+    "scipy>=1.11",
+    "numpy>=1.26",
+    "scikit-learn>=1.4",
+    "plotly>=5.18",
+    "jinja2>=3.1",
+    "datasets>=2.18",          # HuggingFace Hub
+    "sqlalchemy>=2.0",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+text = [
+    "langdetect>=1.0",
+    "presidio-analyzer>=2.2",  # PII detection
+    "sentence-transformers>=2.6",
+]
+labels = [
+    "cleanlab>=2.6",
+]
+pdf = [
+    "weasyprint>=61.0",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "hypothesis>=6.100",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pre-commit>=3.7",
+]
+all = [
+    "dataqualitykit[text,labels,pdf,dev]",
+]
+
+[project.scripts]
+dqk = "dqk.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/dataqualitykit"
+Documentation = "https://yourusername.github.io/dataqualitykit"
+Repository = "https://github.com/yourusername/dataqualitykit"
+Issues = "https://github.com/yourusername/dataqualitykit/issues"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "B", "SIM"]
+ignore = ["ANN101", "ANN102"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=dqk --cov-report=term-missing --cov-report=html"
+
+[tool.coverage.run]
+source = ["dqk"]
+omit = ["tests/*"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["dqk"]
