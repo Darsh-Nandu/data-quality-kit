@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-class CheckSeveruty(str, Enum):
+class CheckSeverity(str, Enum):
     PASS = "pass"
     WARN = "warn"
     FAIL = "fail"
@@ -15,7 +15,7 @@ class CheckIssue(BaseModel):
     """ Single issue found during a check."""
     cloumn: str | None = None
     message: str
-    severity: CheckSeveruty = CheckSeveruty.WARN
+    severity: CheckSeverity = CheckSeverity.WARN
     extra: dict[str, Any] = Field(default_factory=list)
 
 class CheckResult(BaseModel):
@@ -24,14 +24,14 @@ class CheckResult(BaseModel):
     """
     check_name: str
     score: float = Field(ge=0.0, le=1.0, description="Normalized 0-1 quality score foe this check")
-    severity: CheckSeveruty = CheckSeveruty.PASS
+    severity: CheckSeverity = CheckSeverity.PASS
     issues: list[CheckIssue] = Field(default_factory=list)
     metrics: dict[str, Any] = Field(default_factory=dict, description="Raw numbers produced by the check")
     description: str = ""
 
     @property
     def passed(self) -> bool:
-        return self.severity == CheckSeveruty.PASS
+        return self.severity == CheckSeverity.PASS
 
     @property
     def n_issues(self) -> int:
@@ -41,15 +41,15 @@ class CheckResult(BaseModel):
         self,
         message: str,
         column: str | None = None,
-        severity: CheckSeveruty = CheckSeveruty.WARN,
+        severity: CheckSeverity = CheckSeverity.WARN,
         **extra: Any,
     ) -> None:
         self.issues.append(CheckIssue(column=column, message=message, severity=severity, extra=extra))
 
-        if severity == CheckSeveruty.FAIL:
-            self.severity = CheckSeveruty.FAIL
-        elif severity == CheckSeveruty.WARN and self.severity == CheckSeveruty.PASS:
-            self.severity = CheckSeveruty.WARN
+        if severity == CheckSeverity.FAIL:
+            self.severity = CheckSeverity.FAIL
+        elif severity == CheckSeverity.WARN and self.severity == CheckSeverity.PASS:
+            self.severity = CheckSeverity.WARN
 
 class BaseCheck:
     """
@@ -66,6 +66,6 @@ class BaseCheck:
         return CheckResult(
             check_name=self.name,
             score=1.0,
-            severity=CheckSeveruty.PASS,
+            severity=CheckSeverity.PASS,
             description=self.description,
         )
