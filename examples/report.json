@@ -1,0 +1,65 @@
+{
+  "dataset_source": "examples/sample.csv",
+  "n_rows": 5,
+  "n_cols": 2,
+  "score": {
+    "overall": 100.0,
+    "breakdown": {
+      "completeness": 100.0,
+      "validity": 100.0,
+      "uniqueness": 100.0
+    },
+    "severity": "pass"
+  },
+  "results": [
+    {
+      "check_name": "completeness",
+      "score": 1.0,
+      "severity": "pass",
+      "issues": [],
+      "metrics": {
+        "null_rates": {
+          "a": 0.0,
+          "b": 0.0
+        },
+        "overall_null_rate": 0.0,
+        "empty_cols": [],
+        "high_null_cols": [],
+        "n_complete_rows": 5,
+        "complete_row_rate": 1.0,
+        "missing_pattern_correlations": []
+      },
+      "description": "Check null rates, missing paterns, and row-level completeness"
+    },
+    {
+      "check_name": "validity",
+      "score": 1.0,
+      "severity": "pass",
+      "issues": [],
+      "metrics": {
+        "type_violation_rates": {
+          "a": 0.0,
+          "b": 0.0
+        },
+        "range_violation_rates": {},
+        "regex_violation_rates": {},
+        "constant_cols": []
+      },
+      "description": "Schema/type conformance, range guards, regex patterns, constant columns"
+    },
+    {
+      "check_name": "uniqueness",
+      "score": 1.0,
+      "severity": "pass",
+      "issues": [],
+      "metrics": {
+        "exact_duplicate_rate": 0.0,
+        "exact_duplicate_count": 0,
+        "key_duplicate_rates": {},
+        "fuzzy_duplicate_rate": 0.0
+      },
+      "description": "Exact row deduplication, key-column uniqueness, fuzzy text near-dedup"
+    }
+  ],
+  "metadata": {}
+}
