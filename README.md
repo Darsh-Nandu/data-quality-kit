@@ -1,290 +1,409 @@
-# 🧪 DataQualityKit
+<div align="center">
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue)](http://mypy-lang.org/)
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://pre-commit.com/)
-[![Tests](https://img.shields.io/badge/tests-pytest-success)](https://docs.pytest.org/)
+<br/>
 
-> **Dataset quality testing for ML teams** — profile, score, and gate your data in one command.
-
-DataQualityKit (`dqk`) is a lightweight, extensible Python library and CLI for running structured quality checks on tabular and text datasets before they reach your ML pipelines. Load from CSV, JSON, Parquet, HuggingFace Hub, SQL, or an existing DataFrame; run completeness, validity, and uniqueness checks; and get back a scored, graded report — in seconds.
-
----
-
-## ✨ Features
-
-- **Multi-source ingestion** — CSV, JSON/JSONL, Parquet, HuggingFace Hub, SQLAlchemy (any DB), pandas & polars DataFrames, all via a single unified API.
-- **Auto schema inference** — column dtypes, semantic roles (feature / label / text / ID / timestamp), missing rates, and unique counts are inferred automatically.
-- **Built-in quality checks:**
-  - **Completeness** — per-column null rates, full-row completeness, MNAR (missing-not-at-random) pattern detection via missingness correlation.
-  - **Validity** — type conformance, constant-column detection, configurable range guards and regex pattern guards.
-  - **Uniqueness** — exact row deduplication, key-column uniqueness, and optional fuzzy near-dedup via MinHash LSH.
-- **Weighted quality score** — an overall 0–100 score (graded A–F) aggregated from all checks.
-- **Rich CLI** — colour-coded terminal output with per-check tables, issue lists, and a `--fail-under` CI gate.
-- **Multiple report formats** — save results as JSON or a standalone HTML report.
-- **Jupyter-friendly** — `DQKDataset` and `QualityReport` both expose `_repr_html_` for inline notebook display.
-- **CI-ready** — exit code 1 when score drops below a configurable threshold; pairs with pre-commit hooks out of the box.
-
----
-
-## 📦 Installation
-
-```bash
-pip install data-quality-kit
+```
+ ██████╗  ██████╗ ██╗  ██╗
+ ██╔══██╗██╔═══██╗██║ ██╔╝
+██║  ██║██║   ██║█████╔╝
+██║  ██║██║▄▄ ██║██╔═██╗
+ ██████╔╝╚██████╔╝██║  ██╗
+ ╚═════╝  ╚══▀▀═╝ ╚═╝  ╚═╝
 ```
 
-**Optional extras:**
+### **DataQualityKit**
+*Production-grade dataset quality testing for ML teams*
+
+<br/>
+
+[![CI](https://img.shields.io/github/actions/workflow/status/Darsh-Nandu/data-quality-kit/ci.yml?branch=main&label=CI&logo=github&style=flat-square)](https://github.com/Darsh-Nandu/data-quality-kit/actions)
+[![Coverage](https://img.shields.io/badge/coverage-73%25-4ade80?style=flat-square&logo=pytest)](https://github.com/Darsh-Nandu/data-quality-kit)
+[![Tests](https://img.shields.io/badge/tests-46%20passing-4ade80?style=flat-square)](https://github.com/Darsh-Nandu/data-quality-kit/tree/main/tests)
+[![Python](https://img.shields.io/badge/python-3.10%20|%203.11%20|%203.12-3b82f6?style=flat-square&logo=python&logoColor=white)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-a855f7?style=flat-square)](LICENSE.md)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-f97316?style=flat-square)](https://github.com/astral-sh/ruff)
+
+<br/>
+
+**DQK audits your datasets across six quality dimensions, detects distribution drift<br/>between training and production data, and generates interactive Plotly dashboards —<br/>in a single command.**
+
+<br/>
 
 ```bash
-# HuggingFace Hub support
-pip install datasets
-
-# SQL support (PostgreSQL, MySQL, SQLite, …)
-pip install sqlalchemy
-
-# Fuzzy deduplication via MinHash
-pip install datasketch
-
-# Polars interop
-pip install polars
+pip install dataqualitykit
+dqk check train.csv --fail-under 80 --output report.html
 ```
+
+<br/>
+
+</div>
 
 ---
 
-## 🚀 Quickstart
+## Why DataQualityKit?
 
-### Python API
+Garbage in, garbage out. Most ML failures trace back to data — missing values, silent type errors, severe class imbalance, training-serving skew. DQK makes these problems visible and measurable before they reach your model.
+
+- **Six specialized checks** covering completeness, validity, uniqueness, distributions, text quality, and label quality
+- **Drift detection** with industry-standard PSI, KS test, and Jensen–Shannon divergence
+- **Interactive HTML reports** powered by Plotly — shareable, standalone, no server needed
+- **CI-ready** — fail your pipeline if data quality drops below a threshold
+- **Extensible** — register custom checks with a single decorator
+
+---
+
+## Quickstart
 
 ```python
 from dqk.core.dataset import DQKDataset
 
 # Load from any source
-ds = DQKDataset.from_csv("data/train.csv")
-ds = DQKDataset.from_parquet("data/train.parquet")
+ds = DQKDataset.from_csv("train.csv")
+ds = DQKDataset.from_parquet("data.parquet")
 ds = DQKDataset.from_huggingface("imdb", split="train")
-ds = DQKDataset.from_sql("postgresql://user:pass@localhost/db", query="SELECT * FROM events")
-ds = DQKDataset.from_dataframe(my_pandas_df)
-
-# Inspect schema
-print(ds)
-# DQKDataset(rows=25_000, cols=8, source='data/train.csv', format='csv')
-
-print(ds.summary())
+ds = DQKDataset.from_dataframe(my_df)
 
 # Run all checks
-report = ds.run_checks()
+report = ds.run_checks(label_col="target")
 
-print(f"Score: {report.score.overall:.1f}/100 ({report.score.grade})")
-print(f"Issues found: {report.n_issues}")
+print(f"Quality Score: {report.score.overall:.1f}/100  Grade: {report.score.grade}")
+# → Quality Score: 87.4/100  Grade: B
 
-# Run a subset of checks
-report = ds.run_checks(checks=["completeness", "uniqueness"])
-
-# Save the report
-report.save("report.html")   # standalone HTML
-report.save("report.json")   # machine-readable JSON
+# Save interactive dashboard
+report.save("report.html")   # Plotly dashboard
+report.save("report.json")   # Machine-readable JSON
 ```
 
-### CLI
+---
+
+## The Six Checks
+
+<table>
+<thead>
+<tr>
+<th width="180">Check</th>
+<th width="80">Weight</th>
+<th>What It Catches</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+<td><b>completeness</b></td>
+<td align="center">1.5×</td>
+<td>Per-column null rates, empty columns, row-level completeness, correlated missingness (MNAR pattern detection via Pearson correlation)</td>
+</tr>
+
+<tr>
+<td><b>validity</b></td>
+<td align="center">1.2×</td>
+<td>Type conformance, custom range guards <code>{col: (min, max)}</code>, regex pattern guards <code>{col: pattern}</code>, constant column detection</td>
+</tr>
+
+<tr>
+<td><b>uniqueness</b></td>
+<td align="center">1.0×</td>
+<td>Exact row duplicates, key-column violations, fuzzy near-deduplication via MinHash LSH (optional, <code>pip install datasketch</code>)</td>
+</tr>
+
+<tr>
+<td><b>distribution</b></td>
+<td align="center">1.0×</td>
+<td>Z-score and IQR outlier detection, skewness / kurtosis, near-constant columns, high-cardinality categoricals, rare category flagging</td>
+</tr>
+
+<tr>
+<td><b>text_quality</b></td>
+<td align="center">0.8×</td>
+<td>Empty / whitespace strings, extreme length outliers, all-caps noise ratio, exact text duplicates, optional language consistency (langdetect)</td>
+</tr>
+
+<tr>
+<td><b>label_quality</b></td>
+<td align="center"><b>1.3×</b></td>
+<td>Class imbalance ratio (warn ≥ 5:1, fail ≥ 20:1), rare class detection, normalized label entropy, missing label rate</td>
+</tr>
+
+</tbody>
+</table>
+
+> Checks are weighted during aggregation. `label_quality` carries the highest weight (1.3×) because label noise has the most direct impact on model training.
+
+### Run a specific subset
+
+```python
+report = ds.run_checks(checks=["completeness", "distribution", "label_quality"])
+```
+
+---
+
+## Drift Detection
+
+Compare training data against production (or any two snapshots) to catch distribution shift before your model degrades silently.
+
+```python
+from dqk.core.dataset import DQKDataset
+from dqk.drift import compare_datasets
+
+train = DQKDataset.from_csv("train.csv")
+prod  = DQKDataset.from_csv("production.csv")
+
+drift = compare_datasets(train, prod)
+
+print(f"Overall drift: {drift.overall_severity.value}")   # none | moderate | severe
+print(f"Drifted columns: {len(drift.drifted_columns)}/{len(drift.column_results)}")
+
+for col in drift.drifted_columns:
+    print(f"  [{col.severity.value:8}] {col.column:20} {col.note}")
+```
+
+```
+Overall drift: moderate
+Drifted columns: 2/7
+  [moderate ] age                  PSI=0.143, KS=0.112 (p=0.0031)
+  [severe   ] user_region          JS-div=0.341, χ²=84.21 (p=0.0000)
+```
+
+### Drift thresholds
+
+| Test | Metric | Moderate | Severe |
+|---|---|---|---|
+| **PSI** | Numeric distributions | ≥ 0.10 | ≥ 0.25 |
+| **KS test** | Numeric shape change | p < 0.05 | p < 0.001 |
+| **JS Divergence** | Categorical proportions | ≥ 0.10 | ≥ 0.30 |
+| **Chi-squared** | Categorical frequencies | p < 0.05 | p < 0.001 |
+
+Schema changes (added, removed, or type-changed columns) are also reported in `drift.schema_diff`.
+
+---
+
+## CLI Reference
+
+```
+dqk check <source>        Run all quality checks
+dqk compare <ref> <cur>   Drift detection between two datasets
+dqk schema <source>       Print inferred column schema
+dqk list-checks           List all available check names
+```
+
+### `dqk check`
 
 ```bash
-# Run all checks on a local CSV
-dqk check data/train.csv
+# Basic audit
+dqk check data.csv
 
-# Force format, select checks, save report
-dqk check data/train.parquet --format parquet --checks completeness,validity --output report.html
+# Force fail if quality drops below threshold (CI-friendly)
+dqk check data.csv --fail-under 80
 
-# Gate a CI pipeline — exit 1 if score < 80
-dqk check data/train.csv --fail-under 80
+# Run specific checks and save HTML report
+dqk check data.csv --checks completeness,validity,distribution -o report.html
 
-# Load from HuggingFace Hub
-dqk check imdb --split train
+# HuggingFace dataset
+dqk check imdb --format hf --split test
 
-# Inspect inferred schema
-dqk schema data/train.csv
+# With regex and range guards
+dqk check data.csv --checks validity
 ```
 
-**Example CLI output:**
-
 ```
-Loaded: 25,000 rows × 8 cols (csv)
+Loaded: 10,000 rows × 12 cols (csv)
 
-Quality Score: 84.3/100  (B)  WARN
+Quality Score: 74.3/100  (C)  WARN
 
-┌─────────────┬────────┬──────────┬────────┐
-│ Check       │  Score │ Severity │ Issues │
-├─────────────┼────────┼──────────┼────────┤
-│ completeness│  0.921 │  warn    │      3 │
-│ validity    │  0.990 │  pass    │      0 │
-│ uniqueness  │  0.800 │  fail    │      1 │
-└─────────────┴────────┴──────────┴────────┘
+┌──────────────┬───────┬──────────┬─────────┐
+│ Check        │ Score │ Severity │ Issues  │
+├──────────────┼───────┼──────────┼─────────┤
+│ completeness │ 0.961 │ warn     │ 2       │
+│ validity     │ 1.000 │ pass     │ 0       │
+│ uniqueness   │ 0.980 │ pass     │ 1       │
+│ distribution │ 0.742 │ fail     │ 4       │
+│ text_quality │ 0.888 │ warn     │ 2       │
+│ label_quality│ 0.650 │ fail     │ 3       │
+└──────────────┴───────┴──────────┴─────────┘
+```
 
-Issues (4 total):
-  ⚠ (age) Column 'age' has 8.4% missing values (threshold: 5%)
-  ⚠ (income) Column 'income' has 6.1% missing values (threshold: 5%)
-  ⚠ Columns 'age' and 'income' have correlated missingness (r=0.81) — possible MNAR pattern.
-  ✗ 7.2% of rows are exact duplicates (1,800 rows).
+### `dqk compare`
+
+```bash
+dqk compare train.csv production.csv
+dqk compare train.csv production.csv --columns age,score,region --output drift.json
 ```
 
 ---
 
-## 📐 Checks Reference
+## CI / CD Integration
 
-### Completeness
+Drop data quality into your pipeline as a hard gate:
 
-Detects missing data at column and row level, and flags correlated missingness patterns (MNAR).
+```yaml
+# .github/workflows/train.yml
+- name: Data Quality Gate
+  run: |
+    pip install dataqualitykit
+    dqk check data/train.csv --fail-under 80 --output artifacts/report.html
+```
 
-| Parameter | Default | Description |
+Exit code `0` = passes threshold. Exit code `1` = fails → blocks the pipeline.
+
+---
+
+## Data Sources
+
+| Source | Constructor | Notes |
 |---|---|---|
-| `warn_threshold` | `0.05` | Null rate above which a WARN is raised |
-| `fail_threshold` | `0.20` | Null rate above which a FAIL is raised |
+| CSV | `from_csv("data.csv")` | Any `pandas.read_csv` kwargs accepted |
+| Parquet | `from_parquet("data.parquet")` | |
+| JSON / JSONL | `from_json("data.jsonl")` | Auto-detects array vs. lines |
+| HuggingFace Hub | `from_huggingface("imdb", split="train")` | `pip install datasets` |
+| SQL | `from_sql("postgresql://...", query=...)` | SQLAlchemy connection string |
+| pandas DataFrame | `from_dataframe(df)` | |
+| polars DataFrame | `from_dataframe(df)` | Auto-detected |
 
-**Metrics returned:** `null_rates`, `overall_null_rate`, `complete_row_rate`, `missing_pattern_correlations`
+---
 
-### Validity
+## Plugin System
 
-Checks that column values conform to their inferred types, respect optional range bounds, and match optional regex patterns. Also flags constant (zero-variance) columns.
-
-| Parameter | Default | Description |
-|---|---|---|
-| `range_guards` | `{}` | `{col: (min, max)}` — values outside the range are violations |
-| `regex_guards` | `{}` | `{col: pattern}` — non-matching non-null values are violations |
-| `warn_threshold` | `0.001` | Violation rate above which a WARN is raised |
-| `fail_threshold` | `0.01` | Violation rate above which a FAIL is raised |
+Register custom checks without modifying library source:
 
 ```python
-from dqk.checks.validity import ValidityCheck
-
-check = ValidityCheck(
-    range_guards={"age": (0, 120), "score": (0.0, 1.0)},
-    regex_guards={"email": r"^[\w.+-]+@[\w-]+\.\w+$"},
-)
-```
-
-### Uniqueness
-
-Detects exact duplicate rows, key-column uniqueness violations, and (optionally) near-duplicate text via MinHash LSH.
-
-| Parameter | Default | Description |
-|---|---|---|
-| `key_columns` | `None` | Columns that must be unique; inferred from schema (ID role) if `None` |
-| `text_columns` | `None` | Text columns for fuzzy dedup; inferred from schema if `None` |
-| `fuzzy` | `False` | Enable MinHash near-dedup (requires `datasketch`) |
-| `fuzzy_threshold` | `0.85` | Jaccard similarity above which two rows are near-duplicates |
-| `fail_threshold` | `0.05` | Duplicate rate above which a FAIL is raised |
-
----
-
-## 🗂️ Project Structure
-
-```
-data-quality-kit/
-├── dqk/
-│   ├── checks/
-│   │   ├── base.py           # BaseCheck, CheckResult, CheckIssue, CheckSeverity
-│   │   ├── completeness.py   # CompletenessCheck
-│   │   ├── validity.py       # ValidityCheck
-│   │   └── uniqueness.py     # UniquenessCheck
-│   ├── core/
-│   │   ├── dataset.py        # DQKDataset — central user-facing object
-│   │   ├── loader.py         # Multi-source ingestion engine + schema inference
-│   │   └── schema.py         # DatasetSchema, ColumnMeta, ColumnDtype, ColumnRole
-│   └── scoring/
-│       └── scorer.py         # QualityScore, QualityReport, run_all_checks()
-├── cli.py                    # Typer CLI (dqk check / dqk schema)
-├── tests/
-│   ├── conftest.py
-│   └── test_dataset.py
-├── examples/
-│   ├── sample.csv
-│   └── report.json
-├── requirements.txt
-├── pyproject.toml
-└── .pre-commit-config.yaml
-```
-
----
-
-## 🔌 Extending DQK
-
-Custom checks subclass `BaseCheck` and implement a single `run` method:
-
-```python
+from dqk.scoring.scorer import register_check
 from dqk.checks.base import BaseCheck, CheckResult, CheckSeverity
 
-class LabelBalanceCheck(BaseCheck):
-    name = "label_balance"
-    description = "Check class distribution in the label column"
-    weight = 1.0
+@register_check
+class PIICheck(BaseCheck):
+    name = "pii_detection"
+    description = "Detect columns containing PII (emails, phone numbers, SSNs)"
+    weight = 1.5
 
-    def run(self, dataset) -> CheckResult:
+    def run(self, dataset):
         result = self._empty_result()
-        label_cols = dataset.schema.label_columns
-        if not label_cols:
-            result.severity = CheckSeverity.SKIP
-            return result
+        import re
+        email_pattern = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
 
-        col = label_cols[0].name
-        counts = dataset.df[col].value_counts(normalize=True)
-        imbalance = counts.max() - counts.min()
-
-        if imbalance > 0.5:
-            result.add_issue(
-                f"Label imbalance detected (max skew: {imbalance:.1%}).",
-                severity=CheckSeverity.WARN,
-            )
-
-        result.score = round(1.0 - imbalance, 4)
+        for col in dataset.schema.text_columns:
+            series = dataset.df[col].dropna().astype(str)
+            hits = series.str.contains(email_pattern).sum()
+            if hits > 0:
+                result.add_issue(
+                    f"Column '{col.name}' contains {hits} email addresses.",
+                    column=col.name,
+                    severity=CheckSeverity.FAIL,
+                )
+        result.score = 0.0 if result.issues else 1.0
         return result
+
+# Now available everywhere
+report = ds.run_checks(checks=["completeness", "pii_detection"])
 ```
 
 ---
 
-## 🔗 Scoring
+## Architecture
 
-Each check returns a `score` in `[0, 1]`. Checks are combined into an overall score using a weighted average:
+```
+dataqualitykit/
+│
+├── dqk/
+│   ├── checks/
+│   │   ├── base.py              CheckResult · CheckIssue · BaseCheck
+│   │   ├── completeness.py      Null rates · MNAR pattern detection
+│   │   ├── validity.py          Types · range guards · regex guards
+│   │   ├── uniqueness.py        Exact dedup · MinHash fuzzy dedup
+│   │   ├── distribution.py      Outliers · skewness · cardinality
+│   │   ├── text_quality.py      Length · empty · all-caps · langdetect
+│   │   └── label_quality.py     Imbalance · rare classes · entropy
+│   │
+│   ├── core/
+│   │   ├── dataset.py           DQKDataset — main entry point
+│   │   ├── loader.py            CSV · JSON · Parquet · HF · SQL · Polars
+│   │   └── schema.py            DatasetSchema · ColumnMeta · ColumnDtype
+│   │
+│   ├── scoring/
+│   │   └── scorer.py            Weighted aggregation · Plotly report · registry
+│   │
+│   ├── drift.py                 PSI · KS · JS-divergence · chi-squared
+│   └── cli.py                   Typer CLI — check · compare · schema · list-checks
+│
+└── tests/
+    ├── test_checks.py           46 tests · bug regressions · drift · scoring
+    └── test_dataset.py          Core dataset tests
+```
 
-| Check | Weight |
-|---|---|
-| Completeness | 1.5 |
-| Validity | 1.2 |
-| Uniqueness | 1.0 |
+### Data flow
 
-The overall score is scaled to `[0, 100]` and assigned a letter grade:
-
-| Grade | Score range |
-|---|---|
-| **A** | ≥ 90 |
-| **B** | ≥ 75 |
-| **C** | ≥ 60 |
-| **D** | ≥ 40 |
-| **F** | < 40 |
+```
+  Source (CSV / Parquet / HF / SQL / DataFrame)
+       │
+       ▼
+  DQKDataset  ──► DatasetSchema (column dtypes, roles, stats)
+       │
+       ▼
+  run_checks()
+       │
+       ├──► CompletenessCheck  ──┐
+       ├──► ValidityCheck       │
+       ├──► UniquenessCheck     ├──► CheckResult (score, severity, issues, metrics)
+       ├──► DistributionCheck   │
+       ├──► TextQualityCheck    │
+       └──► LabelQualityCheck  ──┘
+                                │
+                                ▼
+                          _aggregate_score()  (weighted average)
+                                │
+                                ▼
+                          QualityReport  ──► .save("report.html")  Plotly dashboard
+                                        ──► .save("report.json")  JSON
+```
 
 ---
 
-## 🧪 Running Tests
+## Development
 
 ```bash
-pip install pytest
-pytest tests/
+git clone https://github.com/Darsh-Nandu/data-quality-kit.git
+cd data-quality-kit
+pip install -e ".[dev]"
+
+# Run tests
+pytest tests/ -v --cov=dqk
+
+# Lint
+ruff check dqk/
+
+# Type check
+mypy dqk/ --ignore-missing-imports
+```
+
+### Optional extras
+
+```bash
+pip install dataqualitykit[text]    # langdetect + presidio PII detection + sentence-transformers
+pip install dataqualitykit[labels]  # cleanlab label noise detection
+pip install dataqualitykit[all]     # everything
 ```
 
 ---
 
-## 🤝 Contributing
+## Scoring
 
-Contributions are welcome! Please:
+The overall score is a **weighted average** of all active check scores, scaled 0–100:
 
-1. Fork the repository and create a feature branch.
-2. Install pre-commit hooks: `pre-commit install`
-3. Make your changes — the hooks enforce `ruff` formatting and `mypy` type checking.
-4. Add or update tests under `tests/`.
-5. Open a pull request with a clear description of the change.
+```
+overall = Σ(check_score × weight) / Σ(weight)  × 100
+```
+
+Checks that produce `SKIP` (e.g. `text_quality` on a dataset with no text columns) are excluded from the denominator — they don't penalize the score.
+
+| Score | Grade | Meaning |
+|---|---|---|
+| 90 – 100 | **A** | Production-ready |
+| 75 – 89  | **B** | Minor issues, review recommended |
+| 60 – 74  | **C** | Significant issues, fix before training |
+| 40 – 59  | **D** | Major problems |
+| 0 – 39   | **F** | Do not use for training |
 
 ---
 
-## 📄 License
+## License
 
-MIT © [Darsh-Nandu](https://github.com/Darsh-Nandu)
+MIT © [Darsh Nandu](https://github.com/Darsh-Nandu)

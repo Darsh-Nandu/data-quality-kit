@@ -12,18 +12,18 @@ class CheckSeverity(str, Enum):
     SKIP = "skip"
 
 class CheckIssue(BaseModel):
-    """ Single issue found during a check."""
-    cloumn: str | None = None
+    """Single issue found during a check."""
+    column: str | None = None
     message: str
     severity: CheckSeverity = CheckSeverity.WARN
-    extra: dict[str, Any] = Field(default_factory=list)
+    extra: dict[str, Any] = Field(default_factory=dict)
 
 class CheckResult(BaseModel):
     """
     Output of a quality check.
     """
     check_name: str
-    score: float = Field(ge=0.0, le=1.0, description="Normalized 0-1 quality score foe this check")
+    score: float = Field(ge=0.0, le=1.0, description="Normalized 0-1 quality score for this check")
     severity: CheckSeverity = CheckSeverity.PASS
     issues: list[CheckIssue] = Field(default_factory=list)
     metrics: dict[str, Any] = Field(default_factory=dict, description="Raw numbers produced by the check")

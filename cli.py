@@ -147,3 +147,97 @@ def _auto_load(
 
 if __name__ == "__main__":
     app()
+
+
+@app.command()
+def compare(
+    reference: str = typer.Argument(..., help="Reference (baseline) dataset path."),
+    current: str = typer.Argument(..., help="Current dataset to compare against the baseline."),
+    ref_format: Optional[str] = typer.Option(None, "--ref-format", help="Force format for reference."),
+    cur_format: Optional[str] = typer.Option(None, "--cur-format", help="Force format for current."),
+    columns: Optional[str] = typer.Option(None, "--columns", "-c", help="Comma-separated columns to compare."),
+    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Save drift report to .json file."),
+) -> None:
+    """Compare two datasets for distribution drift (PSI, KS, chi-squared)."""
+    from dqk.drift import compare_datasets, DriftSeverity
+
+    with console.status("Loading datasets..."):
+        ref_ds = _auto_load(reference, ref_format, "train")
+        cur_ds = _auto_load(current, cur_format, "train")
+
+    col_list = [c.strip() for c in columns.split(",")] if columns else None
+
+    with console.status("Running drift analysis..."):
+        drift_report = compare_datasets(ref_ds, cur_ds, columns=col_list)
+
+    # Schema diff
+    diff = drift_report.schema_diff
+    if diff["added"] or diff["removed"] or diff["type_changed"]:
+        console.print("\n[bold yellow]Schema Differences:[/bold yellow]")
+        if diff["added"]:
+            console.print(f"  [green]+ Added columns:[/green] {diff['added']}")
+        if diff["removed"]:
+            console.print(f"  [red]- Removed columns:[/red] {diff['removed']}")
+        if diff["type_changed"]:
+            for col, change in diff["type_changed"].items():
+                console.print(f"  [yellow]~ Type changed:[/yellow] '{col}' {change['from']} → {change['to']}")
+
+    # Drift table
+    sev_color = {
+        DriftSeverity.NONE: "green",
+        DriftSeverity.MODERATE: "yellow",
+        DriftSeverity.SEVERE: "red",
+    }
+    table = Table(show_header=True, header_style="bold", title="Column Drift Analysis")
+    table.add_column("Column")
+    table.add_column("Type")
+    table.add_column("Severity", justify="center")
+    table.add_column("PSI / JS-div", justify="right")
+    table.add_column("p-value", justify="right")
+
+    for r in drift_report.column_results:
+        color = sev_color[r.severity]
+        stat = (
+            f"{r.psi:.4f}" if r.psi is not None
+            else f"{r.js_divergence:.4f}" if r.js_divergence is not None
+            else "—"
+        )
+        pval = (
+            f"{r.ks_pvalue:.4f}" if r.ks_pvalue is not None
+            else f"{r.chi2_pvalue:.4f}" if r.chi2_pvalue is not None
+            else "—"
+        )
+        table.add_row(
+            r.column, r.dtype,
+            f"[{color}]{r.severity.value.upper()}[/{color}]",
+            stat, pval,
+        )
+    console.print(table)
+
+    # Summary
+    n_drifted = len(drift_report.drifted_columns)
+    overall = drift_report.overall_severity
+    color = sev_color[overall]
+    console.print(
+        f"\n[bold]Overall drift:[/bold] [{color}]{overall.value.upper()}[/{color}] "
+        f"— {n_drifted}/{len(drift_report.column_results)} columns drifted"
+    )
+
+    if output:
+        import json
+        output.write_text(json.dumps(drift_report.to_dict(), indent=2, default=str))
+        console.print(f"[dim]Drift report saved to:[/dim] [bold]{output}[/bold]")
+
+
+@app.command(name="list-checks")
+def list_checks() -> None:
+    """List all available quality checks."""
+    from dqk.scoring.scorer import available_checks
+    table = Table(show_header=True, header_style="bold", title="Available Quality Checks")
+    table.add_column("Check Name")
+    table.add_column("Description")
+    for name in available_checks():
+        from dqk.scoring.scorer import _build_default_registry
+        cls = _build_default_registry()[name]
+        table.add_row(name, getattr(cls, "description", ""))
+    console.print(table)

@@ -163,6 +163,6 @@ class ValidityCheck(BaseCheck):
         elif expected == ColumnDtype.DATETIME:
             violations = int(pd.to_datetime(non_null, errors="coerce").isna().sum())
         else:
-            return 0.0  # STRING / UNKNOWN / CATEGORY — no type check
+            return 0.0  # STRING / UNKNOWN / CATEGORY - no type check
 
         return violations / len(series)  # relative to total rows (incl. nulls)
