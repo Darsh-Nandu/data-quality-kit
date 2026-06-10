@@ -131,7 +131,6 @@ def _build_plotly_html(report: QualityReport) -> str:
     """Build a standalone interactive HTML dashboard using Plotly."""
     try:
         import plotly.graph_objects as go
-        from plotly.subplots import make_subplots
         import plotly.io as pio
     except ImportError:
         # Fallback to plain HTML if plotly not installed
@@ -190,9 +189,15 @@ def _build_plotly_html(report: QualityReport) -> str:
     fig_bars.add_vline(x=75, line_dash="dash", line_color="#6b7280", annotation_text="B threshold")
 
     # Figure 3: Issue breakdown donut
-    fail_count = sum(1 for r in report.results for i in r.issues if i.severity == CheckSeverity.FAIL)
-    warn_count = sum(1 for r in report.results for i in r.issues if i.severity == CheckSeverity.WARN)
-    pass_count = max(0, len(report.results) - len(report.failed_checks()) - len(report.warned_checks()))
+    fail_count = sum(
+        1 for r in report.results for i in r.issues if i.severity == CheckSeverity.FAIL
+    )
+    warn_count = sum(
+        1 for r in report.results for i in r.issues if i.severity == CheckSeverity.WARN
+    )
+    pass_count = max(
+        0, len(report.results) - len(report.failed_checks()) - len(report.warned_checks())
+    )
 
     if report.n_issues > 0:
         fig_donut = go.Figure(go.Pie(
@@ -208,7 +213,10 @@ def _build_plotly_html(report: QualityReport) -> str:
         )
         donut_html = pio.to_html(fig_donut, full_html=False, include_plotlyjs=False)
     else:
-        donut_html = "<div style='text-align:center;padding:60px;color:#22c55e;font-size:18px'>✓ No issues found</div>"
+        donut_html = (
+            "<div style='text-align:center;padding:60px;color:#22c55e;"
+            "font-size:18px'>✓ No issues found</div>"
+        )
 
     # Serialize figures
     gauge_html = pio.to_html(fig_gauge, full_html=False, include_plotlyjs="cdn")
@@ -219,13 +227,17 @@ def _build_plotly_html(report: QualityReport) -> str:
     for r in report.results:
         for issue in r.issues:
             sev = issue.severity.value
-            badge_color = {"fail": "#ef4444", "warn": "#f59e0b", "pass": "#22c55e", "skip": "#94a3b8"}.get(sev, "#888")
+            badge_color = {
+                "fail": "#ef4444", "warn": "#f59e0b",
+                "pass": "#22c55e", "skip": "#94a3b8",
+            }.get(sev, "#888")
             col_label = f"<code>{issue.column}</code>" if issue.column else "—"
             issue_rows += f"""
             <tr>
               <td>{r.check_name}</td>
               <td>{col_label}</td>
-              <td><span style="background:{badge_color};color:#fff;padding:2px 8px;border-radius:4px;font-size:12px">{sev.upper()}</span></td>
+              <td><span style="background:{badge_color};color:#fff;padding:2px 8px;
+                border-radius:4px;font-size:12px">{sev.upper()}</span></td>
               <td style="font-size:13px;color:#374151">{issue.message}</td>
             </tr>"""
 
@@ -252,7 +264,8 @@ def _build_plotly_html(report: QualityReport) -> str:
   <title>DQK Report — {report.dataset_source}</title>
   <style>
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    body {{ font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #1e293b; }}
+    body {{ font-family: system-ui, -apple-system, sans-serif;
+             background: #f8fafc; color: #1e293b; }}
     .header {{ background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
                color: #fff; padding: 32px 48px; }}
     .header h1 {{ font-size: 28px; font-weight: 700; margin-bottom: 4px; }}
@@ -292,11 +305,13 @@ def _build_plotly_html(report: QualityReport) -> str:
         <div class="stat-label">Overall Score / 100</div>
       </div>
       <div class="stat">
-        <div class="stat-value" style="color:{'#ef4444' if report.failed_checks() else '#22c55e'}">{len(report.failed_checks())}</div>
+        <div class="stat-value" style="color:{'#ef4444' if report.failed_checks() else '#22c55e'}">
+          {len(report.failed_checks())}</div>
         <div class="stat-label">Failed Checks</div>
       </div>
       <div class="stat">
-        <div class="stat-value" style="color:{'#f59e0b' if report.warned_checks() else '#22c55e'}">{len(report.warned_checks())}</div>
+        <div class="stat-value" style="color:{'#f59e0b' if report.warned_checks() else '#22c55e'}">
+          {len(report.warned_checks())}</div>
         <div class="stat-label">Warned Checks</div>
       </div>
     </div>
@@ -349,11 +364,11 @@ def register_check(cls: type) -> type:
 
 def _build_default_registry() -> dict[str, type]:
     from dqk.checks.completeness import CompletenessCheck
-    from dqk.checks.validity import ValidityCheck
-    from dqk.checks.uniqueness import UniquenessCheck
     from dqk.checks.distribution import DistributionCheck
-    from dqk.checks.text_quality import TextQualityCheck
     from dqk.checks.label_quality import LabelQualityCheck
+    from dqk.checks.text_quality import TextQualityCheck
+    from dqk.checks.uniqueness import UniquenessCheck
+    from dqk.checks.validity import ValidityCheck
 
     built_in = {
         "completeness": CompletenessCheck,
@@ -366,7 +381,10 @@ def _build_default_registry() -> dict[str, type]:
     return {**built_in, **_CHECK_REGISTRY}
 
 
-_DEFAULT_CHECKS = ["completeness", "validity", "uniqueness", "distribution", "text_quality", "label_quality"]
+_DEFAULT_CHECKS = [
+    "completeness", "validity", "uniqueness",
+    "distribution", "text_quality", "label_quality",
+]
 
 
 def available_checks() -> list[str]:
@@ -424,7 +442,7 @@ def _aggregate_score(results: list[CheckResult]) -> QualityScore:
 
 
 def run_all_checks(
-    dataset: "DQKDataset",
+    dataset: DQKDataset,
     checks: list[str] | None = None,
     label_col: str | None = None,
 ) -> QualityReport:
@@ -477,8 +495,11 @@ _FALLBACK_TEMPLATE = """<!DOCTYPE html>
 </head>
 <body>
   <h1>DataQualityKit Report</h1>
-  <p><b>Source:</b> {{ report.dataset_source }} | <b>Rows:</b> {{ report.n_rows }} | <b>Cols:</b> {{ report.n_cols }}</p>
-  <div class="score grade-{{ report.score.grade }}">{{ "%.1f"|format(report.score.overall) }}/100 ({{ report.score.grade }})</div>
+  <p><b>Source:</b> {{ report.dataset_source }} | <b>Rows:</b> {{ report.n_rows }}
+  | <b>Cols:</b> {{ report.n_cols }}</p>
+  <div class="score grade-{{ report.score.grade }}">
+    {{ "%.1f"|format(report.score.overall) }}/100 ({{ report.score.grade }})
+  </div>
   <table>
     <thead><tr><th>Check</th><th>Score</th><th>Severity</th><th>Issues</th></tr></thead>
     <tbody>

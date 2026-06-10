@@ -191,7 +191,9 @@ class LabelQualityCheck(BaseCheck):
                 "majority_rate": round(majority_rate, 4),
                 "minority_class": str(value_counts.index[-1]),
                 "minority_rate": round(minority_rate, 4),
-                "imbalance_ratio": round(imbalance_ratio, 2) if not np.isinf(imbalance_ratio) else None,
+                "imbalance_ratio": (
+                    round(imbalance_ratio, 2) if not np.isinf(imbalance_ratio) else None
+                ),
                 "rare_classes": rare_classes,
                 "entropy_bits": round(entropy, 4),
                 "normalized_entropy": round(normalized_entropy, 4),

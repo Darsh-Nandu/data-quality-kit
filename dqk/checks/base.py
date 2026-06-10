@@ -5,6 +5,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+
 class CheckSeverity(str, Enum):
     PASS = "pass"
     WARN = "warn"
@@ -26,7 +27,9 @@ class CheckResult(BaseModel):
     score: float = Field(ge=0.0, le=1.0, description="Normalized 0-1 quality score for this check")
     severity: CheckSeverity = CheckSeverity.PASS
     issues: list[CheckIssue] = Field(default_factory=list)
-    metrics: dict[str, Any] = Field(default_factory=dict, description="Raw numbers produced by the check")
+    metrics: dict[str, Any] = Field(
+        default_factory=dict, description="Raw numbers produced by the check"
+    )
     description: str = ""
 
     @property
@@ -44,7 +47,9 @@ class CheckResult(BaseModel):
         severity: CheckSeverity = CheckSeverity.WARN,
         **extra: Any,
     ) -> None:
-        self.issues.append(CheckIssue(column=column, message=message, severity=severity, extra=extra))
+        self.issues.append(
+            CheckIssue(column=column, message=message, severity=severity, extra=extra)
+        )
 
         if severity == CheckSeverity.FAIL:
             self.severity = CheckSeverity.FAIL

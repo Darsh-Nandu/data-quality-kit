@@ -38,19 +38,19 @@ class DQKDataset:
 
     # Constructors
     @classmethod
-    def from_csv(cls, path: str | Path, **kwargs: Any) -> "DQKDataset":
+    def from_csv(cls, path: str | Path, **kwargs: Any) -> DQKDataset:
         """Load a CSV file."""
         df, source, fmt = load(path, format="csv", **kwargs)
         return cls(df, infer_schema(df, source=source, fmt=fmt))
 
     @classmethod
-    def from_json(cls, path: str | Path, **kwargs: Any) -> "DQKDataset":
+    def from_json(cls, path: str | Path, **kwargs: Any) -> DQKDataset:
         """Load a JSON or JSONL file."""
         df, source, fmt = load(path, format="json", **kwargs)
         return cls(df, infer_schema(df, source=source, fmt=fmt))
 
     @classmethod
-    def from_parquet(cls, path: str | Path, **kwargs: Any) -> "DQKDataset":
+    def from_parquet(cls, path: str | Path, **kwargs: Any) -> DQKDataset:
         """Load a Parquet file."""
         df, source, fmt = load(path, format="parquet", **kwargs)
         return cls(df, infer_schema(df, source=source, fmt=fmt))
@@ -61,7 +61,7 @@ class DQKDataset:
         dataset_id: str,
         split: str = "train",
         **kwargs: Any,
-    ) -> "DQKDataset":
+    ) -> DQKDataset:
         """Load a dataset from HuggingFace Hub."""
         df, source, fmt = load(dataset_id, format="hf", split=split, **kwargs)
         return cls(df, infer_schema(df, source=source, fmt=fmt))
@@ -72,7 +72,7 @@ class DQKDataset:
         connection_string: str,
         query: str = "SELECT * FROM data",
         **kwargs: Any,
-    ) -> "DQKDataset":
+    ) -> DQKDataset:
         """Load from a SQL database via SQLAlchemy connection string."""
         df, source, fmt = load(
             connection_string, format="sql", sql_query=query, **kwargs
@@ -80,7 +80,7 @@ class DQKDataset:
         return cls(df, infer_schema(df, source=source, fmt=fmt))
 
     @classmethod
-    def from_dataframe(cls, df: pd.DataFrame, source: str = "dataframe") -> "DQKDataset":
+    def from_dataframe(cls, df: pd.DataFrame, source: str = "dataframe") -> DQKDataset:
         """Wrap an existing pandas or polars DataFrame."""
         actual_df, src, fmt = load(df)
         return cls(actual_df, infer_schema(actual_df, source=source, fmt=fmt))
@@ -112,12 +112,12 @@ class DQKDataset:
         )
 
     # Slicing helpers
-    def sample(self, n: int = 5, random_state: int = 42) -> "DQKDataset":
+    def sample(self, n: int = 5, random_state: int = 42) -> DQKDataset:
         """Return a DQKDataset with a random sample of rows."""
         sampled = self._df.sample(min(n, len(self._df)), random_state=random_state)
         return DQKDataset(sampled.reset_index(drop=True), self.schema)
 
-    def select_columns(self, cols: list[str]) -> "DQKDataset":
+    def select_columns(self, cols: list[str]) -> DQKDataset:
         """Return a DQKDataset restricted to the given columns."""
         sub = self._df[cols].copy()
         sub_schema_cols = [c for c in self.schema.columns if c.name in cols]
@@ -136,7 +136,7 @@ class DQKDataset:
         self,
         checks: list[str] | None = None,
         label_col: str | None = None,
-    ) -> "QualityReport":  # type: ignore[name-defined]
+    ) -> QualityReport:  # type: ignore[name-defined]
         """
         Run all (or a subset of) quality checks and return a QualityReport.
 
@@ -177,7 +177,7 @@ class DQKDataset:
             f"<td><code>{c.name}</code></td>"
             f"<td>{c.dtype.value}</td>"
             f"<td>{c.role.value}</td>"
-            f"<td>{c.missing_rate:.1%}" if c.missing_rate is not None else "<td>—" 
+            f"<td>{c.missing_rate:.1%}" if c.missing_rate is not None else "<td>—"
             f"</td>"
             f"<td>{c.n_unique}</td>"
             f"</tr>"
@@ -188,7 +188,8 @@ class DQKDataset:
           <b>DQKDataset</b> — {self.schema.n_rows:,} rows × {self.schema.n_cols} cols
           &nbsp;|&nbsp; source: <code>{self.schema.source}</code>
           &nbsp;|&nbsp; format: <code>{self.schema.format}</code>
-          <table border="1" cellpadding="4" cellspacing="0" style="border-collapse: collapse; margin-top: 6px;">
+          <table border="1" cellpadding="4" cellspacing="0"
+            style="border-collapse: collapse; margin-top: 6px;">
             <thead>
               <tr style="background: #f5f5f5;">
                 <th>column</th><th>dtype</th><th>role</th>

@@ -90,7 +90,8 @@ class TextQualityCheck(BaseCheck):
 
             if empty_rate >= self.empty_fail_threshold:
                 result.add_issue(
-                    f"Column '{col}' has {empty_rate:.1%} empty/whitespace-only strings ({n_empty:,} rows).",
+                    f"Column '{col}' has {empty_rate:.1%}"
+                    f" empty/whitespace-only strings ({n_empty:,} rows).",
                     column=col,
                     severity=CheckSeverity.FAIL,
                     empty_rate=empty_rate,
@@ -117,7 +118,8 @@ class TextQualityCheck(BaseCheck):
             short_rate = n_short / n_rows
             if short_rate >= self.short_warn_threshold:
                 result.add_issue(
-                    f"Column '{col}' has {short_rate:.1%} texts shorter than {self.min_length} chars.",
+                    f"Column '{col}' has {short_rate:.1%}"
+                    f" texts shorter than {self.min_length} chars.",
                     column=col,
                     severity=CheckSeverity.WARN,
                     short_rate=short_rate,
@@ -129,7 +131,8 @@ class TextQualityCheck(BaseCheck):
             long_rate = n_long / n_rows
             if long_rate > 0.001:
                 result.add_issue(
-                    f"Column '{col}' has {long_rate:.1%} texts exceeding {self.max_length:,} chars.",
+                    f"Column '{col}' has {long_rate:.1%}"
+                    f" texts exceeding {self.max_length:,} chars.",
                     column=col,
                     severity=CheckSeverity.WARN,
                     long_rate=long_rate,
@@ -145,7 +148,8 @@ class TextQualityCheck(BaseCheck):
 
             if allcaps_rate >= self.allcaps_warn_threshold:
                 result.add_issue(
-                    f"Column '{col}' has {allcaps_rate:.1%} all-uppercase texts — possible data noise.",
+                    f"Column '{col}' has {allcaps_rate:.1%}"
+                    f" all-uppercase texts — possible data noise.",
                     column=col,
                     severity=CheckSeverity.WARN,
                     allcaps_rate=allcaps_rate,
@@ -157,7 +161,8 @@ class TextQualityCheck(BaseCheck):
             dup_rate = n_dup_text / n_rows
             if dup_rate >= self.dup_warn_threshold:
                 result.add_issue(
-                    f"Column '{col}' has {dup_rate:.1%} duplicate text values ({n_dup_text:,} rows).",
+                    f"Column '{col}' has {dup_rate:.1%}"
+                    f" duplicate text values ({n_dup_text:,} rows).",
                     column=col,
                     severity=CheckSeverity.WARN,
                     dup_rate=dup_rate,
@@ -200,7 +205,7 @@ class TextQualityCheck(BaseCheck):
         n_rows: int,
     ) -> dict[str, float]:
         try:
-            from langdetect import detect, LangDetectException  # type: ignore[import]
+            from langdetect import LangDetectException, detect  # type: ignore[import]
         except ImportError:
             result.add_issue(
                 "Language detection skipped — install 'langdetect': pip install langdetect",

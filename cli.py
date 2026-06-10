@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
 from rich.table import Table
-from rich import print as rprint
 
 app = typer.Typer(
     name="dqk",
@@ -21,12 +18,22 @@ console = Console()
 
 @app.command()
 def check(
-    source: str = typer.Argument(..., help="Dataset path, HuggingFace ID, or SQL connection string."),
-    format: Optional[str] = typer.Option(None, "--format", "-f", help="Force format: csv, json, parquet, hf, sql."),
+    source: str = typer.Argument(
+        ..., help="Dataset path, HuggingFace ID, or SQL connection string."
+    ),
+    format: str | None = typer.Option(
+        None, "--format", "-f", help="Force format: csv, json, parquet, hf, sql."
+    ),
     split: str = typer.Option("train", "--split", "-s", help="HuggingFace split (default: train)."),
-    checks: Optional[str] = typer.Option(None, "--checks", "-c", help="Comma-separated check names to run."),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Save report to file (.html or .json)."),
-    fail_under: float = typer.Option(0.0, "--fail-under", help="Exit with code 1 if score < this value."),
+    checks: str | None = typer.Option(
+        None, "--checks", "-c", help="Comma-separated check names to run."
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", "-o", help="Save report to file (.html or .json)."
+    ),
+    fail_under: float = typer.Option(
+        0.0, "--fail-under", help="Exit with code 1 if score < this value."
+    ),
 ) -> None:
     """Run quality checks on a dataset and print a summary."""
     from dqk.core.dataset import DQKDataset
@@ -55,7 +62,9 @@ def check(
     console.print(
         f"\n[bold]Quality Score:[/bold] "
         f"[{color} bold]{report.score.overall:.1f}/100  ({report.score.grade})[/{color} bold]"
-        f"  [{report.score.severity.value}]{report.score.severity.value.upper()}[/{report.score.severity.value}]"
+        f"  [{report.score.severity.value}]"
+        f"{report.score.severity.value.upper()}"
+        f"[/{report.score.severity.value}]"
     )
 
     # Print per-check table
@@ -105,11 +114,10 @@ def check(
 @app.command()
 def schema(
     source: str = typer.Argument(..., help="Dataset path or HuggingFace ID."),
-    format: Optional[str] = typer.Option(None, "--format", "-f"),
+    format: str | None = typer.Option(None, "--format", "-f"),
     split: str = typer.Option("train", "--split", "-s"),
 ) -> None:
     """Print the inferred schema of a dataset."""
-    from dqk.core.dataset import DQKDataset
 
     ds = _auto_load(source, format, split)
     table = Table(show_header=True, header_style="bold", title=f"Schema: {source}")
@@ -133,15 +141,13 @@ def schema(
 
 def _auto_load(
     source: str,
-    format: Optional[str],
+    format: str | None,
     split: str,
-) -> "DQKDataset":  # type: ignore[name-defined]
+) -> DQKDataset:  # type: ignore[name-defined]
     from dqk.core.dataset import DQKDataset
-    from dqk.core.loader import load
-    from dqk.core.loader import infer_schema
+    from dqk.core.loader import infer_schema, load
 
     df, src, fmt = load(source, format=format, split=split)
-    from dqk.core.loader import infer_schema
     return DQKDataset(df, infer_schema(df, source=src, fmt=fmt))
 
 
@@ -153,13 +159,17 @@ if __name__ == "__main__":
 def compare(
     reference: str = typer.Argument(..., help="Reference (baseline) dataset path."),
     current: str = typer.Argument(..., help="Current dataset to compare against the baseline."),
-    ref_format: Optional[str] = typer.Option(None, "--ref-format", help="Force format for reference."),
-    cur_format: Optional[str] = typer.Option(None, "--cur-format", help="Force format for current."),
-    columns: Optional[str] = typer.Option(None, "--columns", "-c", help="Comma-separated columns to compare."),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Save drift report to .json file."),
+    ref_format: str | None = typer.Option(None, "--ref-format", help="Force format for reference."),
+    cur_format: str | None = typer.Option(None, "--cur-format", help="Force format for current."),
+    columns: str | None = typer.Option(
+        None, "--columns", "-c", help="Comma-separated columns to compare."
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", "-o", help="Save drift report to .json file."
+    ),
 ) -> None:
     """Compare two datasets for distribution drift (PSI, KS, chi-squared)."""
-    from dqk.drift import compare_datasets, DriftSeverity
+    from dqk.drift import DriftSeverity, compare_datasets
 
     with console.status("Loading datasets..."):
         ref_ds = _auto_load(reference, ref_format, "train")
@@ -180,7 +190,10 @@ def compare(
             console.print(f"  [red]- Removed columns:[/red] {diff['removed']}")
         if diff["type_changed"]:
             for col, change in diff["type_changed"].items():
-                console.print(f"  [yellow]~ Type changed:[/yellow] '{col}' {change['from']} → {change['to']}")
+                console.print(
+                    f"  [yellow]~ Type changed:[/yellow] '{col}'"
+                    f" {change['from']} → {change['to']}"
+                )
 
     # Drift table
     sev_color = {

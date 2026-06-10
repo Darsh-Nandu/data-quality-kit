@@ -68,7 +68,7 @@ class DistributionCheck(BaseCheck):
         skewness_summary: dict[str, float] = {}
         cardinality_summary: dict[str, dict[str, Any]] = {}
 
-        # ── Numeric column checks ──────────────────────────────────────────
+        # Numeric column checks
         for col in numeric_cols:
             series = df[col].dropna()
             n = len(series)
@@ -84,7 +84,10 @@ class DistributionCheck(BaseCheck):
             iqr = q3 - q1
             if iqr > 0:
                 iqr_outliers = int(
-                    ((series < q1 - self.iqr_multiplier * iqr) | (series > q3 + self.iqr_multiplier * iqr)).sum()
+                    (
+                        (series < q1 - self.iqr_multiplier * iqr)
+                        | (series > q3 + self.iqr_multiplier * iqr)
+                    ).sum()
                 )
             else:
                 iqr_outliers = 0
@@ -106,7 +109,8 @@ class DistributionCheck(BaseCheck):
             if outlier_rate >= self.outlier_fail:
                 result.add_issue(
                     f"Column '{col}' has {outlier_rate:.1%} outliers "
-                    f"({n_outliers:,} rows exceed Z>{self.zscore_threshold} or IQR×{self.iqr_multiplier}).",
+                    f"({n_outliers:,} rows exceed"
+                    f" Z>{self.zscore_threshold} or IQR×{self.iqr_multiplier}).",
                     column=col,
                     severity=CheckSeverity.FAIL,
                     outlier_rate=outlier_rate,
@@ -165,7 +169,11 @@ class DistributionCheck(BaseCheck):
             cardinality_summary[col] = {
                 "n_unique": int(n_unique),
                 "cardinality_ratio": round(cardinality_ratio, 4),
-                "top_category_rate": round(float(value_counts.iloc[0]), 4) if len(value_counts) > 0 else 0.0,
+                "top_category_rate": (
+                    round(float(value_counts.iloc[0]), 4)
+                    if len(value_counts) > 0
+                    else 0.0
+                ),
             }
 
             # High cardinality (likely free-text stored as category)
