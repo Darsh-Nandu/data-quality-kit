@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def test_from_dataframe_summary():
+def test_from_dataframe_summary() -> None:
     from dqk.core.dataset import DQKDataset
 
     df = pd.DataFrame({"a": [1, 2, 3], "b": ["x", "y", "z"]})
@@ -15,7 +15,7 @@ def test_from_dataframe_summary():
     assert "b" in names
 
 
-def test_sample_and_len():
+def test_sample_and_len() -> None:
     from dqk.core.dataset import DQKDataset
 
     df = pd.DataFrame({"x": list(range(10))})
