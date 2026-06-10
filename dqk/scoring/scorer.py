@@ -93,11 +93,8 @@ class QualityReport(BaseModel):
 
     def _repr_html_(self) -> str:
         grade_color = {
-            "A": "#22c55e",
-            "B": "#84cc16",
-            "C": "#f59e0b",
-            "D": "#f97316",
-            "F": "#ef4444",
+            "A": "#22c55e", "B": "#84cc16", "C": "#f59e0b",
+            "D": "#f97316", "F": "#ef4444",
         }
         color = grade_color.get(self.score.grade, "#888")
         rows = "".join(
@@ -130,7 +127,6 @@ class QualityReport(BaseModel):
 
 # Plotly HTML dashboard
 
-
 def _build_plotly_html(report: QualityReport) -> str:
     """Build a standalone interactive HTML dashboard using Plotly."""
     try:
@@ -145,33 +141,28 @@ def _build_plotly_html(report: QualityReport) -> str:
     grade_color = grade_colors.get(report.score.grade, "#888")
 
     # Figure 1: Radial gauge for overall score
-    fig_gauge = go.Figure(
-        go.Indicator(
-            mode="gauge+number+delta",
-            value=report.score.overall,
-            number={"suffix": "/100", "font": {"size": 36, "color": grade_color}},
-            gauge={
-                "axis": {"range": [0, 100], "tickwidth": 1},
-                "bar": {"color": grade_color, "thickness": 0.3},
-                "steps": [
-                    {"range": [0, 40], "color": "#fee2e2"},
-                    {"range": [40, 60], "color": "#fef3c7"},
-                    {"range": [60, 75], "color": "#fef9c3"},
-                    {"range": [75, 90], "color": "#dcfce7"},
-                    {"range": [90, 100], "color": "#bbf7d0"},
-                ],
-                "threshold": {
-                    "line": {"color": grade_color, "width": 4},
-                    "thickness": 0.8,
-                    "value": report.score.overall,
-                },
+    fig_gauge = go.Figure(go.Indicator(
+        mode="gauge+number+delta",
+        value=report.score.overall,
+        number={"suffix": "/100", "font": {"size": 36, "color": grade_color}},
+        gauge={
+            "axis": {"range": [0, 100], "tickwidth": 1},
+            "bar": {"color": grade_color, "thickness": 0.3},
+            "steps": [
+                {"range": [0, 40], "color": "#fee2e2"},
+                {"range": [40, 60], "color": "#fef3c7"},
+                {"range": [60, 75], "color": "#fef9c3"},
+                {"range": [75, 90], "color": "#dcfce7"},
+                {"range": [90, 100], "color": "#bbf7d0"},
+            ],
+            "threshold": {
+                "line": {"color": grade_color, "width": 4},
+                "thickness": 0.8,
+                "value": report.score.overall,
             },
-            title={
-                "text": f"Overall Quality Grade: <b>{report.score.grade}</b>",
-                "font": {"size": 18},
-            },
-        )
-    )
+        },
+        title={"text": f"Overall Quality Grade: <b>{report.score.grade}</b>", "font": {"size": 18}},
+    ))
     fig_gauge.update_layout(height=280, margin=dict(t=40, b=0, l=40, r=40))
 
     # Figure 2: Per-check bar chart
@@ -180,16 +171,14 @@ def _build_plotly_html(report: QualityReport) -> str:
     check_scores = [r.score * 100 for r in active_results]
     bar_colors = [sev_colors.get(r.severity.value, "#888") for r in active_results]
 
-    fig_bars = go.Figure(
-        go.Bar(
-            x=check_scores,
-            y=check_names,
-            orientation="h",
-            marker_color=bar_colors,
-            text=[f"{s:.1f}" for s in check_scores],
-            textposition="outside",
-        )
-    )
+    fig_bars = go.Figure(go.Bar(
+        x=check_scores,
+        y=check_names,
+        orientation="h",
+        marker_color=bar_colors,
+        text=[f"{s:.1f}" for s in check_scores],
+        textposition="outside",
+    ))
     fig_bars.update_layout(
         title="Check Scores (0–100)",
         xaxis=dict(range=[0, 110], title="Score"),
@@ -211,14 +200,12 @@ def _build_plotly_html(report: QualityReport) -> str:
     )
 
     if report.n_issues > 0:
-        fig_donut = go.Figure(
-            go.Pie(
-                labels=["FAIL", "WARN", "PASS"],
-                values=[fail_count, warn_count, pass_count],
-                hole=0.55,
-                marker_colors=["#ef4444", "#f59e0b", "#22c55e"],
-            )
-        )
+        fig_donut = go.Figure(go.Pie(
+            labels=["FAIL", "WARN", "PASS"],
+            values=[fail_count, warn_count, pass_count],
+            hole=0.55,
+            marker_colors=["#ef4444", "#f59e0b", "#22c55e"],
+        ))
         fig_donut.update_layout(
             title="Issue Breakdown",
             height=280,
@@ -241,10 +228,8 @@ def _build_plotly_html(report: QualityReport) -> str:
         for issue in r.issues:
             sev = issue.severity.value
             badge_color = {
-                "fail": "#ef4444",
-                "warn": "#f59e0b",
-                "pass": "#22c55e",
-                "skip": "#94a3b8",
+                "fail": "#ef4444", "warn": "#f59e0b",
+                "pass": "#22c55e", "skip": "#94a3b8",
             }.get(sev, "#888")
             col_label = f"<code>{issue.column}</code>" if issue.column else "—"
             issue_rows += f"""
@@ -256,8 +241,7 @@ def _build_plotly_html(report: QualityReport) -> str:
               <td style="font-size:13px;color:#374151">{issue.message}</td>
             </tr>"""
 
-    issue_table = (
-        f"""
+    issue_table = f"""
     <table style="width:100%;border-collapse:collapse;font-family:system-ui,sans-serif">
       <thead>
         <tr style="background:#f3f4f6">
@@ -269,10 +253,7 @@ def _build_plotly_html(report: QualityReport) -> str:
       </thead>
       <tbody>{issue_rows}</tbody>
     </table>
-    """
-        if issue_rows
-        else "<p style='color:#22c55e;font-size:15px'>✓ No issues detected.</p>"
-    )
+    """ if issue_rows else "<p style='color:#22c55e;font-size:15px'>✓ No issues detected.</p>"
 
     # Assemble full page
     return f"""<!DOCTYPE html>
@@ -324,12 +305,12 @@ def _build_plotly_html(report: QualityReport) -> str:
         <div class="stat-label">Overall Score / 100</div>
       </div>
       <div class="stat">
-        <div class="stat-value" style="color:{"#ef4444" if report.failed_checks() else "#22c55e"}">
+        <div class="stat-value" style="color:{'#ef4444' if report.failed_checks() else '#22c55e'}">
           {len(report.failed_checks())}</div>
         <div class="stat-label">Failed Checks</div>
       </div>
       <div class="stat">
-        <div class="stat-value" style="color:{"#f59e0b" if report.warned_checks() else "#22c55e"}">
+        <div class="stat-value" style="color:{'#f59e0b' if report.warned_checks() else '#22c55e'}">
           {len(report.warned_checks())}</div>
         <div class="stat-label">Warned Checks</div>
       </div>
@@ -365,7 +346,6 @@ def _build_plotly_html(report: QualityReport) -> str:
 def _build_fallback_html(report: QualityReport) -> str:
     """Plain HTML fallback when Plotly is not available."""
     from jinja2 import BaseLoader, Environment
-
     env = Environment(loader=BaseLoader())
     tmpl = env.from_string(_FALLBACK_TEMPLATE)
     return tmpl.render(report=report)
@@ -402,12 +382,8 @@ def _build_default_registry() -> dict[str, type]:
 
 
 _DEFAULT_CHECKS = [
-    "completeness",
-    "validity",
-    "uniqueness",
-    "distribution",
-    "text_quality",
-    "label_quality",
+    "completeness", "validity", "uniqueness",
+    "distribution", "text_quality", "label_quality",
 ]
 
 
@@ -476,7 +452,6 @@ def run_all_checks(
         for col in dataset.schema.columns:
             if col.name == label_col:
                 from dqk.core.schema import ColumnRole
-
                 col.role = ColumnRole.LABEL
                 break
 
