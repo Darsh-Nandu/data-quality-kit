@@ -196,7 +196,7 @@ def _categorical_drift(col: str, ref: pd.Series, cur: pd.Series) -> ColumnDriftR
 
 
 # Schema diff
-def _schema_diff(ref_ds: "DQKDataset", cur_ds: "DQKDataset") -> dict[str, Any]:
+def _schema_diff(ref_ds: DQKDataset, cur_ds: DQKDataset) -> dict[str, Any]:
     ref_cols = {c.name: c.dtype.value for c in ref_ds.schema.columns}
     cur_cols = {c.name: c.dtype.value for c in cur_ds.schema.columns}
 
@@ -212,8 +212,8 @@ def _schema_diff(ref_ds: "DQKDataset", cur_ds: "DQKDataset") -> dict[str, Any]:
 
 # Public API
 def compare_datasets(
-    reference: "DQKDataset",
-    current: "DQKDataset",
+    reference: DQKDataset,
+    current: DQKDataset,
     columns: list[str] | None = None,
 ) -> DriftReport:
     """

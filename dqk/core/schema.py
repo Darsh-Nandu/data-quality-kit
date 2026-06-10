@@ -62,7 +62,7 @@ class DatasetSchema(BaseModel):
     extra: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _propagate_n_rows(self) -> "DatasetSchema":
+    def _propagate_n_rows(self) -> DatasetSchema:
         for col in self.columns:
             col.extra.setdefault("n_rows", self.n_rows)
         return self
