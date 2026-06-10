@@ -7,13 +7,15 @@ All quality checks, scoring, and reporting flow through this class.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
 from dqk.core.loader import infer_schema, load
 from dqk.core.schema import DatasetSchema
 
+if TYPE_CHECKING:
+    from dqk.scoring.scorer import QualityReport
 
 class DQKDataset:
     """
@@ -135,7 +137,7 @@ class DQKDataset:
         self,
         checks: list[str] | None = None,
         label_col: str | None = None,
-    ) -> QualityReport:  # type: ignore[name-defined]
+    ) -> QualityReport:
         """
         Run all (or a subset of) quality checks and return a QualityReport.
 
