@@ -173,9 +173,7 @@ def _categorical_drift(col: str, ref: pd.Series, cur: pd.Series) -> ColumnDriftR
 
     # Chi-squared test
     try:
-        chi2, chi2_p = stats.chi2_contingency(
-            np.array([ref_vec, cur_vec])
-        )[:2]
+        chi2, chi2_p = stats.chi2_contingency(np.array([ref_vec, cur_vec]))[:2]
     except Exception:
         chi2, chi2_p = 0.0, 1.0
 

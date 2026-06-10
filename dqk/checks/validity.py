@@ -12,7 +12,6 @@ from dqk.core.schema import ColumnDtype
 
 
 class ValidityCheck(BaseCheck):
-
     name = "validity"
     description = "Schema/type conformance, range guards, regex patterns, constant columns"
     weight = 1.2
@@ -156,9 +155,9 @@ class ValidityCheck(BaseCheck):
         if expected == ColumnDtype.INTEGER or expected == ColumnDtype.FLOAT:
             violations = pd.to_numeric(non_null, errors="coerce").isna().sum()
         elif expected == ColumnDtype.BOOLEAN:
-            violations = int((~non_null.astype(str).str.lower().isin(
-                {"true", "false", "1", "0"}
-            )).sum())
+            violations = int(
+                (~non_null.astype(str).str.lower().isin({"true", "false", "1", "0"})).sum()
+            )
         elif expected == ColumnDtype.DATETIME:
             violations = int(pd.to_datetime(non_null, errors="coerce").isna().sum())
         else:

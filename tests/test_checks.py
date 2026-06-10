@@ -23,7 +23,7 @@ from dqk.core.schema import ColumnRole
 from dqk.scoring.scorer import QualityReport, QualityScore, available_checks
 
 
-#Helpers
+# Helpers
 def make_ds(df: pd.DataFrame) -> DQKDataset:
     return DQKDataset.from_dataframe(df)
 
@@ -286,8 +286,12 @@ class TestScoring:
     def test_available_checks_lists_all_six(self) -> None:
         checks = available_checks()
         expected = {
-            "completeness", "validity", "uniqueness",
-            "distribution", "text_quality", "label_quality",
+            "completeness",
+            "validity",
+            "uniqueness",
+            "distribution",
+            "text_quality",
+            "label_quality",
         }
         assert expected.issubset(set(checks))
 
@@ -316,6 +320,7 @@ class TestScoring:
 class TestDriftDetection:
     def test_identical_datasets_no_drift(self) -> None:
         from dqk.drift import DriftSeverity, compare_datasets
+
         df = pd.DataFrame({"x": np.random.default_rng(0).normal(0, 1, 200)})
         ref = make_ds(df)
         cur = make_ds(df.copy())
@@ -324,6 +329,7 @@ class TestDriftDetection:
 
     def test_shifted_distribution_detected(self) -> None:
         from dqk.drift import DriftSeverity, compare_datasets
+
         rng = np.random.default_rng(42)
         ref = make_ds(pd.DataFrame({"x": rng.normal(0, 1, 300)}))
         cur = make_ds(pd.DataFrame({"x": rng.normal(10, 1, 300)}))  # massive shift
@@ -332,6 +338,7 @@ class TestDriftDetection:
 
     def test_drift_report_has_column_results(self) -> None:
         from dqk.drift import compare_datasets
+
         df = pd.DataFrame({"a": [1.0, 2.0, 3.0], "b": ["x", "y", "z"]})
         ref = make_ds(df)
         cur = make_ds(df.copy())
@@ -342,6 +349,7 @@ class TestDriftDetection:
 
     def test_schema_diff_detects_added_columns(self) -> None:
         from dqk.drift import compare_datasets
+
         ref = make_ds(pd.DataFrame({"a": [1, 2, 3]}))
         cur = make_ds(pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]}))
         report = compare_datasets(ref, cur)
@@ -349,6 +357,7 @@ class TestDriftDetection:
 
     def test_schema_diff_detects_removed_columns(self) -> None:
         from dqk.drift import compare_datasets
+
         ref = make_ds(pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]}))
         cur = make_ds(pd.DataFrame({"a": [1, 2, 3]}))
         report = compare_datasets(ref, cur)
@@ -356,6 +365,7 @@ class TestDriftDetection:
 
     def test_drift_report_to_dict(self) -> None:
         from dqk.drift import compare_datasets
+
         df = pd.DataFrame({"x": [1.0, 2.0, 3.0]})
         report = compare_datasets(make_ds(df), make_ds(df.copy()))
         d = report.to_dict()

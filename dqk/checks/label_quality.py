@@ -153,8 +153,7 @@ class LabelQualityCheck(BaseCheck):
 
             # Rare classes
             rare_classes = [
-                str(cls) for cls, rate in class_dist.items()
-                if rate < self.rare_threshold
+                str(cls) for cls, rate in class_dist.items() if rate < self.rare_threshold
             ]
             if rare_classes:
                 result.add_issue(

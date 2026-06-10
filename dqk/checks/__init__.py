@@ -9,7 +9,12 @@ from dqk.checks.text_quality import TextQualityCheck
 from dqk.checks.label_quality import LabelQualityCheck
 
 __all__ = [
-    "CheckResult", "CheckSeverity",
-    "CompletenessCheck", "ValidityCheck", "UniquenessCheck",
-    "DistributionCheck", "TextQualityCheck", "LabelQualityCheck",
+    "CheckResult",
+    "CheckSeverity",
+    "CompletenessCheck",
+    "ValidityCheck",
+    "UniquenessCheck",
+    "DistributionCheck",
+    "TextQualityCheck",
+    "LabelQualityCheck",
 ]

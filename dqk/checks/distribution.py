@@ -170,9 +170,7 @@ class DistributionCheck(BaseCheck):
                 "n_unique": int(n_unique),
                 "cardinality_ratio": round(cardinality_ratio, 4),
                 "top_category_rate": (
-                    round(float(value_counts.iloc[0]), 4)
-                    if len(value_counts) > 0
-                    else 0.0
+                    round(float(value_counts.iloc[0]), 4) if len(value_counts) > 0 else 0.0
                 ),
             }
 

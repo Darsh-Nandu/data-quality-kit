@@ -74,9 +74,7 @@ class DQKDataset:
         **kwargs: Any,
     ) -> DQKDataset:
         """Load from a SQL database via SQLAlchemy connection string."""
-        df, source, fmt = load(
-            connection_string, format="sql", sql_query=query, **kwargs
-        )
+        df, source, fmt = load(connection_string, format="sql", sql_query=query, **kwargs)
         return cls(df, infer_schema(df, source=source, fmt=fmt))
 
     @classmethod
@@ -122,6 +120,7 @@ class DQKDataset:
         sub = self._df[cols].copy()
         sub_schema_cols = [c for c in self.schema.columns if c.name in cols]
         from dqk.core.schema import DatasetSchema
+
         new_schema = DatasetSchema(
             n_rows=len(sub),
             n_cols=len(cols),
@@ -148,6 +147,7 @@ class DQKDataset:
             Column name to treat as the label, overriding schema inference.
         """
         from dqk.scoring.scorer import run_all_checks
+
         return run_all_checks(self, checks=checks, label_col=label_col)
 
     # Summary / display
@@ -177,10 +177,9 @@ class DQKDataset:
             f"<td><code>{c.name}</code></td>"
             f"<td>{c.dtype.value}</td>"
             f"<td>{c.role.value}</td>"
-            f"<td>{c.missing_rate:.1%}" if c.missing_rate is not None else "<td>—"
-            f"</td>"
-            f"<td>{c.n_unique}</td>"
-            f"</tr>"
+            f"<td>{c.missing_rate:.1%}"
+            if c.missing_rate is not None
+            else f"<td>—</td><td>{c.n_unique}</td></tr>"
             for c in self.schema.columns
         )
         return f"""

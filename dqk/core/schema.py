@@ -5,6 +5,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
+
 class ColumnDtype(str, Enum):
     """Canonical column data types used across DQK."""
 
@@ -14,8 +15,9 @@ class ColumnDtype(str, Enum):
     BOOLEAN = "boolean"
     DATETIME = "datetime"
     CATEGORY = "category"
-    EMBEDDING = "embedding"   # list[float] columns
+    EMBEDDING = "embedding"  # list[float] columns
     UNKNOWN = "unknown"
+
 
 class ColumnRole(str, Enum):
     """Semantic role of a column in an ML context."""
@@ -26,6 +28,7 @@ class ColumnRole(str, Enum):
     TEXT = "text"
     TIMESTAMP = "timestamp"
     UNKNOWN = "unknown"
+
 
 class ColumnMeta(BaseModel):
     """Metadata for a single column inferred during ingestion."""
@@ -46,6 +49,7 @@ class ColumnMeta(BaseModel):
         if self.n_missing is None or total is None or total == 0:
             return None
         return self.n_missing / total
+
 
 class DatasetSchema(BaseModel):
     """Full schema of a DQKDataset."""

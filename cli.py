@@ -42,8 +42,11 @@ def check(
 
     with console.status(f"Loading dataset from [bold]{source}[/bold]..."):
         try:
-            ds = DQKDataset.from_csv(source) if (format or "").lower() == "csv" \
+            ds = (
+                DQKDataset.from_csv(source)
+                if (format or "").lower() == "csv"
                 else _auto_load(source, format, split)
+            )
         except Exception as e:
             console.print(f"[red]Error loading dataset:[/red] {e}")
             raise typer.Exit(1) from e
@@ -191,8 +194,7 @@ def compare(
         if diff["type_changed"]:
             for col, change in diff["type_changed"].items():
                 console.print(
-                    f"  [yellow]~ Type changed:[/yellow] '{col}'"
-                    f" {change['from']} → {change['to']}"
+                    f"  [yellow]~ Type changed:[/yellow] '{col}' {change['from']} → {change['to']}"
                 )
 
     # Drift table
@@ -211,19 +213,25 @@ def compare(
     for r in drift_report.column_results:
         color = sev_color[r.severity]
         stat = (
-            f"{r.psi:.4f}" if r.psi is not None
-            else f"{r.js_divergence:.4f}" if r.js_divergence is not None
+            f"{r.psi:.4f}"
+            if r.psi is not None
+            else f"{r.js_divergence:.4f}"
+            if r.js_divergence is not None
             else "—"
         )
         pval = (
-            f"{r.ks_pvalue:.4f}" if r.ks_pvalue is not None
-            else f"{r.chi2_pvalue:.4f}" if r.chi2_pvalue is not None
+            f"{r.ks_pvalue:.4f}"
+            if r.ks_pvalue is not None
+            else f"{r.chi2_pvalue:.4f}"
+            if r.chi2_pvalue is not None
             else "—"
         )
         table.add_row(
-            r.column, r.dtype,
+            r.column,
+            r.dtype,
             f"[{color}]{r.severity.value.upper()}[/{color}]",
-            stat, pval,
+            stat,
+            pval,
         )
     console.print(table)
 
@@ -238,6 +246,7 @@ def compare(
 
     if output:
         import json
+
         output.write_text(json.dumps(drift_report.to_dict(), indent=2, default=str))
         console.print(f"[dim]Drift report saved to:[/dim] [bold]{output}[/bold]")
 
@@ -246,11 +255,13 @@ def compare(
 def list_checks() -> None:
     """List all available quality checks."""
     from dqk.scoring.scorer import available_checks
+
     table = Table(show_header=True, header_style="bold", title="Available Quality Checks")
     table.add_column("Check Name")
     table.add_column("Description")
     for name in available_checks():
         from dqk.scoring.scorer import _build_default_registry
+
         cls = _build_default_registry()[name]
         table.add_row(name, getattr(cls, "description", ""))
     console.print(table)
