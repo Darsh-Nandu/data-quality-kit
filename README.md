@@ -7,25 +7,25 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://pre-commit.com/)
 [![Tests](https://img.shields.io/badge/tests-pytest-success)](https://docs.pytest.org/)
 
-> **Dataset quality testing for ML teams** — profile, score, and gate your data in one command.
+> **Dataset quality testing for ML teams** - profile, score, and gate your data in one command.
 
-DataQualityKit (`dqk`) is a lightweight, extensible Python library and CLI for running structured quality checks on tabular and text datasets before they reach your ML pipelines. Load from CSV, JSON, Parquet, HuggingFace Hub, SQL, or an existing DataFrame; run completeness, validity, and uniqueness checks; and get back a scored, graded report — in seconds.
+DataQualityKit (`dqk`) is a lightweight, extensible Python library and CLI for running structured quality checks on tabular and text datasets before they reach your ML pipelines. Load from CSV, JSON, Parquet, HuggingFace Hub, SQL, or an existing DataFrame; run completeness, validity, and uniqueness checks; and get back a scored, graded report - in seconds.
 
 ---
 
 ## ✨ Features
 
-- **Multi-source ingestion** — CSV, JSON/JSONL, Parquet, HuggingFace Hub, SQLAlchemy (any DB), pandas & polars DataFrames, all via a single unified API.
-- **Auto schema inference** — column dtypes, semantic roles (feature / label / text / ID / timestamp), missing rates, and unique counts are inferred automatically.
+- **Multi-source ingestion** - CSV, JSON/JSONL, Parquet, HuggingFace Hub, SQLAlchemy (any DB), pandas & polars DataFrames, all via a single unified API.
+- **Auto schema inference** - column dtypes, semantic roles (feature / label / text / ID / timestamp), missing rates, and unique counts are inferred automatically.
 - **Built-in quality checks:**
-  - **Completeness** — per-column null rates, full-row completeness, MNAR (missing-not-at-random) pattern detection via missingness correlation.
-  - **Validity** — type conformance, constant-column detection, configurable range guards and regex pattern guards.
-  - **Uniqueness** — exact row deduplication, key-column uniqueness, and optional fuzzy near-dedup via MinHash LSH.
-- **Weighted quality score** — an overall 0–100 score (graded A–F) aggregated from all checks.
-- **Rich CLI** — colour-coded terminal output with per-check tables, issue lists, and a `--fail-under` CI gate.
-- **Multiple report formats** — save results as JSON or a standalone HTML report.
-- **Jupyter-friendly** — `DQKDataset` and `QualityReport` both expose `_repr_html_` for inline notebook display.
-- **CI-ready** — exit code 1 when score drops below a configurable threshold; pairs with pre-commit hooks out of the box.
+  - **Completeness** - per-column null rates, full-row completeness, MNAR (missing-not-at-random) pattern detection via missingness correlation.
+  - **Validity** - type conformance, constant-column detection, configurable range guards and regex pattern guards.
+  - **Uniqueness** - exact row deduplication, key-column uniqueness, and optional fuzzy near-dedup via MinHash LSH.
+- **Weighted quality score** - an overall 0–100 score (graded A–F) aggregated from all checks.
+- **Rich CLI** - colour-coded terminal output with per-check tables, issue lists, and a `--fail-under` CI gate.
+- **Multiple report formats** - save results as JSON or a standalone HTML report.
+- **Jupyter-friendly** - `DQKDataset` and `QualityReport` both expose `_repr_html_` for inline notebook display.
+- **CI-ready** - exit code 1 when score drops below a configurable threshold; pairs with pre-commit hooks out of the box.
 
 ---
 
@@ -96,7 +96,7 @@ dqk check data/train.csv
 # Force format, select checks, save report
 dqk check data/train.parquet --format parquet --checks completeness,validity --output report.html
 
-# Gate a CI pipeline — exit 1 if score < 80
+# Gate a CI pipeline - exit 1 if score < 80
 dqk check data/train.csv --fail-under 80
 
 # Load from HuggingFace Hub
@@ -124,7 +124,7 @@ Quality Score: 84.3/100  (B)  WARN
 Issues (4 total):
   ⚠ (age) Column 'age' has 8.4% missing values (threshold: 5%)
   ⚠ (income) Column 'income' has 6.1% missing values (threshold: 5%)
-  ⚠ Columns 'age' and 'income' have correlated missingness (r=0.81) — possible MNAR pattern.
+  ⚠ Columns 'age' and 'income' have correlated missingness (r=0.81) - possible MNAR pattern.
   ✗ 7.2% of rows are exact duplicates (1,800 rows).
 ```
 
@@ -149,8 +149,8 @@ Checks that column values conform to their inferred types, respect optional rang
 
 | Parameter | Default | Description |
 |---|---|---|
-| `range_guards` | `{}` | `{col: (min, max)}` — values outside the range are violations |
-| `regex_guards` | `{}` | `{col: pattern}` — non-matching non-null values are violations |
+| `range_guards` | `{}` | `{col: (min, max)}` - values outside the range are violations |
+| `regex_guards` | `{}` | `{col: pattern}` - non-matching non-null values are violations |
 | `warn_threshold` | `0.001` | Violation rate above which a WARN is raised |
 | `fail_threshold` | `0.01` | Violation rate above which a FAIL is raised |
 
@@ -188,7 +188,7 @@ data-quality-kit/
 │   │   ├── validity.py       # ValidityCheck
 │   │   └── uniqueness.py     # UniquenessCheck
 │   ├── core/
-│   │   ├── dataset.py        # DQKDataset — central user-facing object
+│   │   ├── dataset.py        # DQKDataset - central user-facing object
 │   │   ├── loader.py         # Multi-source ingestion engine + schema inference
 │   │   └── schema.py         # DatasetSchema, ColumnMeta, ColumnDtype, ColumnRole
 │   └── scoring/
@@ -279,7 +279,7 @@ Contributions are welcome! Please:
 
 1. Fork the repository and create a feature branch.
 2. Install pre-commit hooks: `pre-commit install`
-3. Make your changes — the hooks enforce `ruff` formatting and `mypy` type checking.
+3. Make your changes - the hooks enforce `ruff` formatting and `mypy` type checking.
 4. Add or update tests under `tests/`.
 5. Open a pull request with a clear description of the change.
 

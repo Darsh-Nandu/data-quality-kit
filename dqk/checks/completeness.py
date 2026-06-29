@@ -4,7 +4,7 @@ from typing import Any
 
 import pandas as pd
 
-from dqk.checks.base import BaseCheck, CheckIssue, CheckResult, CheckSeverity
+from dqk.checks.base import BaseCheck, CheckResult, CheckSeverity
 
 
 class CompletenessCheck(BaseCheck):
@@ -55,14 +55,16 @@ class CompletenessCheck(BaseCheck):
         for col, rate in null_rates.items():
             if rate >= self.fail_threshold and col not in empty_columns:
                 result.add_issue(
-                    f"Column '{col}' has {rate:.1%} missing values (threshold: {self.fail_threshold:.0%}).",
+                    f"Column '{col}' has {rate:.1%} missing values"
+                    f" (threshold: {self.fail_threshold:.0%}).",
                     column=col,
                     severity=CheckSeverity.FAIL,
                     null_rate=rate,
                 )
             elif rate >= self.warn_threshold and col not in empty_columns:
                 result.add_issue(
-                    f"Column '{col}' has {rate:.1%} missing values (threshold: {self.warn_threshold:.0%}).",
+                    f"Column '{col}' has {rate:.1%} missing values"
+                    f" (threshold: {self.warn_threshold:.0%}).",
                     column=col,
                     severity=CheckSeverity.WARN,
                     null_rate=rate,
@@ -87,7 +89,9 @@ class CompletenessCheck(BaseCheck):
                 for c2 in missing_pattern_cols[i+1:]:
                     r = corr.loc[c1, c2]
                     if abs(r) > 0.7:
-                        correlated_pairs.append({"col_a": c1, "col_b": c2, "correlation": round(r, 3)})
+                        correlated_pairs.append(
+                            {"col_a": c1, "col_b": c2, "correlation": round(r, 3)}
+                        )
                         result.add_issue(
                             f"Columns '{c1}' and '{c2}' have correlated missingness "
                             f"(r={r:.2f}) — possible MNAR pattern.",
