@@ -12,7 +12,6 @@ from dqk.core.schema import ColumnDtype
 
 
 class ValidityCheck(BaseCheck):
-
     name = "validity"
     description = "Schema/type conformance, range guards, regex patterns, constant columns"
     weight = 1.2
@@ -27,7 +26,8 @@ class ValidityCheck(BaseCheck):
         """
         Arguments:
         range_guards: ``{col_name: (min_val, max_val)}`` — rows outside this range are violations.
-        regex_guards: ``{col_name: pattern}`` — non-null rows not matching the pattern are violations.
+        regex_guards: ``{col_name: pattern}`` — non-null rows not matching
+        the pattern are violations.
         fail_threshold: Violation rate above which a FAIL issue is raised.
         warn_threshold: Violation rate above which a WARN issue is raised.
         """
@@ -62,7 +62,8 @@ class ValidityCheck(BaseCheck):
             type_violation_rates[col] = round(vrate, 4)
             if vrate >= self.fail_threshold:
                 result.add_issue(
-                    f"Column '{col}' has {vrate:.1%} type-invalid values (expected {col_meta.dtype.value}).",
+                    f"Column '{col}' has {vrate:.1%} type-invalid values"
+                    f" (expected {col_meta.dtype.value}).",
                     column=col,
                     severity=CheckSeverity.FAIL,
                     violation_rate=vrate,
@@ -142,7 +143,7 @@ class ValidityCheck(BaseCheck):
             "constant_cols": constant_cols,
         }
         return result
-    
+
     @staticmethod
     def _type_violation_rate(series: pd.Series, expected: ColumnDtype) -> float:
         """Return the fraction of non-null values that violate the expected type."""
@@ -151,18 +152,15 @@ class ValidityCheck(BaseCheck):
         if n == 0:
             return 0.0
 
-        if expected == ColumnDtype.INTEGER:
-            violations = pd.to_numeric(non_null, errors="coerce").isna().sum()
-        elif expected == ColumnDtype.FLOAT:
+        if expected == ColumnDtype.INTEGER or expected == ColumnDtype.FLOAT:
             violations = pd.to_numeric(non_null, errors="coerce").isna().sum()
         elif expected == ColumnDtype.BOOLEAN:
-            valid = {True, False, 1, 0, "true", "false", "True", "False", "1", "0"}
-            violations = int((~non_null.astype(str).str.lower().isin(
-                {"true", "false", "1", "0"}
-            )).sum())
+            violations = int(
+                (~non_null.astype(str).str.lower().isin({"true", "false", "1", "0"})).sum()
+            )
         elif expected == ColumnDtype.DATETIME:
             violations = int(pd.to_datetime(non_null, errors="coerce").isna().sum())
         else:
-            return 0.0  # STRING / UNKNOWN / CATEGORY — no type check
+            return 0.0  # STRING / UNKNOWN / CATEGORY - no type check
 
         return violations / len(series)  # relative to total rows (incl. nulls)

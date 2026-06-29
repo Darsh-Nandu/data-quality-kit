@@ -12,17 +12,27 @@ class CheckSeverity(str, Enum):
     FAIL = "fail"
     SKIP = "skip"
 
+
 class CheckIssue(BaseModel):
     """Single issue found during a check."""
+<<<<<<< HEAD
+=======
+
+>>>>>>> f216f1e5bef347f4d7c7b9c2a80dcfc0f5aea755
     column: str | None = None
     message: str
     severity: CheckSeverity = CheckSeverity.WARN
     extra: dict[str, Any] = Field(default_factory=dict)
+<<<<<<< HEAD
+=======
+
+>>>>>>> f216f1e5bef347f4d7c7b9c2a80dcfc0f5aea755
 
 class CheckResult(BaseModel):
     """
     Output of a quality check.
     """
+
     check_name: str
     score: float = Field(ge=0.0, le=1.0, description="Normalized 0-1 quality score for this check")
     severity: CheckSeverity = CheckSeverity.PASS
@@ -56,13 +66,15 @@ class CheckResult(BaseModel):
         elif severity == CheckSeverity.WARN and self.severity == CheckSeverity.PASS:
             self.severity = CheckSeverity.WARN
 
+
 class BaseCheck:
     """
     Abstract base class for DQK checks.
     """
-    name: str  = "base_check"
+
+    name: str = "base_check"
     description: str = ""
-    weight: float = 1.0 # used in weighted scoring
+    weight: float = 1.0  # used in weighted scoring
 
     def run(self, dataset: Any) -> CheckResult:
         raise NotImplementedError

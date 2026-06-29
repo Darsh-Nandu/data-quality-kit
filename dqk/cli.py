@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import typer
 from rich.console import Console
 from rich.table import Table
+
+if TYPE_CHECKING:
+    from dqk.core.dataset import DQKDataset
 
 app = typer.Typer(
     name="dqk",
@@ -146,7 +150,7 @@ def _auto_load(
     source: str,
     format: str | None,
     split: str,
-) -> DQKDataset:  # type: ignore[name-defined]
+) -> DQKDataset:
     from dqk.core.dataset import DQKDataset
     from dqk.core.loader import infer_schema, load
 

@@ -10,7 +10,6 @@ from dqk.checks.base import BaseCheck, CheckResult, CheckSeverity
 
 
 class UniquenessCheck(BaseCheck):
-
     name = "uniqueness"
     description = "Exact row deduplication, key-column uniqueness, fuzzy text near-dedup"
     weight = 1.0
@@ -72,6 +71,7 @@ class UniquenessCheck(BaseCheck):
 
         # 2. Key column uniqueness
         from dqk.core.schema import ColumnRole
+
         key_cols = self.key_columns or [
             c.name for c in dataset.schema.columns if c.role == ColumnRole.ID
         ]
@@ -101,6 +101,7 @@ class UniquenessCheck(BaseCheck):
         # 3. Fuzzy text deduplication
         fuzzy_rate = 0.0
         from dqk.core.schema import ColumnRole
+
         text_cols = self.text_columns or [
             c.name for c in dataset.schema.columns if c.role == ColumnRole.TEXT
         ]

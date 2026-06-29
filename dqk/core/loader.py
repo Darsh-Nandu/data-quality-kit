@@ -135,6 +135,7 @@ def infer_schema(df: pd.DataFrame, source: str = "unknown", fmt: str = "unknown"
 
 # Format loaders
 
+
 def _load_csv(path: str | Path, **kwargs: Any) -> pd.DataFrame:
     return pd.read_csv(path, **kwargs)
 
@@ -158,8 +159,7 @@ def _load_huggingface(dataset_id: str, split: str = "train", **kwargs: Any) -> p
         from datasets import load_dataset  # type: ignore[import]
     except ImportError as e:
         raise ImportError(
-            "Install the 'datasets' package to load from HuggingFace Hub: "
-            "pip install datasets"
+            "Install the 'datasets' package to load from HuggingFace Hub: pip install datasets"
         ) from e
     ds = load_dataset(dataset_id, split=split, **kwargs)
     return ds.to_pandas()
@@ -169,9 +169,7 @@ def _load_sql(connection_string: str, query: str, **kwargs: Any) -> pd.DataFrame
     try:
         from sqlalchemy import create_engine, text  # type: ignore[import]
     except ImportError as e:
-        raise ImportError(
-            "Install sqlalchemy to load from SQL: pip install sqlalchemy"
-        ) from e
+        raise ImportError("Install sqlalchemy to load from SQL: pip install sqlalchemy") from e
     engine = create_engine(connection_string)
     with engine.connect() as conn:
         return pd.read_sql(text(query), conn, **kwargs)
@@ -197,6 +195,7 @@ def _load_polars(path_or_df: Any, **kwargs: Any) -> pd.DataFrame:
 
 # Public loader entry-point
 
+
 def load(
     source: str | Path | pd.DataFrame | Any,
     *,
@@ -205,7 +204,7 @@ def load(
     sql_query: str = "SELECT * FROM data",
     **kwargs: Any,
 ) -> tuple[pd.DataFrame, str, str]:
-    
+
     # pandas DataFrame passthrough
     if isinstance(source, pd.DataFrame):
         return source, "dataframe", "dataframe"
@@ -213,6 +212,7 @@ def load(
     # polars DataFrame passthrough
     try:
         import polars as pl  # type: ignore[import]
+
         if isinstance(source, pl.DataFrame):
             return _load_polars(source), "polars_dataframe", "polars"
     except ImportError:
@@ -236,8 +236,7 @@ def load(
             format = "hf"
         else:
             raise ValueError(
-                f"Cannot infer format from source '{source_str}'. "
-                "Pass format= explicitly."
+                f"Cannot infer format from source '{source_str}'. Pass format= explicitly."
             )
 
     fmt = format.lower()

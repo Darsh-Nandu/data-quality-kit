@@ -11,6 +11,7 @@ class CompletenessCheck(BaseCheck):
     """
     Check for missing values across the dataset.
     """
+
     name = "completeness"
     description = "Check null rates, missing paterns, and row-level completeness"
     weight = 1.5
@@ -41,7 +42,7 @@ class CompletenessCheck(BaseCheck):
 
         # Per column null rates
         null_counts = df.isnull().sum()
-        null_rates = (null_counts/n_rows).to_dict()
+        null_rates = (null_counts / n_rows).to_dict()
 
         empty_columns = [col for col, rate in null_rates.items() if rate == 1.0]
         for col in empty_columns:
@@ -49,7 +50,7 @@ class CompletenessCheck(BaseCheck):
                 f"Column '{col}' is 100% empty.",
                 column=col,
                 severity=CheckSeverity.FAIL,
-                null_rate = 1.0,
+                null_rate=1.0,
             )
 
         for col, rate in null_rates.items():
@@ -72,7 +73,7 @@ class CompletenessCheck(BaseCheck):
 
         # row level completeness
         complete_rows = int((df.isnull().sum(axis=1) == 0).sum())
-        complete_row_rate = complete_rows/n_rows
+        complete_row_rate = complete_rows / n_rows
 
         # overall null rates
         total_cells = n_rows * n_cols
@@ -82,11 +83,11 @@ class CompletenessCheck(BaseCheck):
         # missing pattern analysis
         missing_pattern_cols = [c for c, r in null_rates.items() if 0 < r < 1]
         correlated_pairs: list[dict[str, Any]] = []
-        if len(missing_pattern_cols) >=2:
+        if len(missing_pattern_cols) >= 2:
             missing_mask = df[missing_pattern_cols].isnull()
             corr = missing_mask.corr()
             for i, c1 in enumerate(missing_pattern_cols):
-                for c2 in missing_pattern_cols[i+1:]:
+                for c2 in missing_pattern_cols[i + 1 :]:
                     r = corr.loc[c1, c2]
                     if abs(r) > 0.7:
                         correlated_pairs.append(
