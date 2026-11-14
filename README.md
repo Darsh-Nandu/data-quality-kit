@@ -1,9 +1,9 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=180&section=header&text=DataQualityKit&fontSize=52&fontColor=fff&animation=twinkling&fontAlignY=36&desc=Production-grade%20dataset%20auditing%20for%20ML%20teams&descAlignY=58&descSize=18" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=180&section=header&text=DataQualityKit&fontSize=52&fontColor=fff&animation=twinkling&fontAlignY=36&desc=Dataset%20quality%20auditing%20for%20ML%20teams&descAlignY=58&descSize=18" width="100%"/>
 
 [![CI](https://img.shields.io/github/actions/workflow/status/Darsh-Nandu/data-quality-kit/ci.yml?branch=main&label=CI&logo=github&style=for-the-badge)](https://github.com/Darsh-Nandu/data-quality-kit/actions)
-[![Coverage](https://img.shields.io/badge/coverage-73%25-4ade80?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/Darsh-Nandu/data-quality-kit)
+[![Coverage](https://img.shields.io/badge/coverage-66%25-4ade80?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/Darsh-Nandu/data-quality-kit)
 [![Tests](https://img.shields.io/badge/tests-46%20passing-4ade80?style=for-the-badge&logo=checkmarx&logoColor=white)](https://github.com/Darsh-Nandu/data-quality-kit/tree/main/tests)
 [![Python](https://img.shields.io/badge/python-3.10%20|%203.11%20|%203.12-3b82f6?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-a855f7?style=for-the-badge)](LICENSE.md)
@@ -291,7 +291,7 @@ report = ds.run_checks(checks=["completeness", "pii_detection"])
 
 ## Scoring
 
-The overall score is a **weighted average** of all active check scores, scaled 0–100:
+The overall score is a **weighted average** of all active check scores, scaled 0-100:
 
 ```
 overall = Σ(check_score × weight) / Σ(weight)  × 100
@@ -301,11 +301,11 @@ Checks that produce `SKIP` (e.g. `text_quality` on a dataset with no text column
 
 | Score | Grade | Meaning |
 |---|---|---|
-| 90 – 100 | **A** 🟢 | Production-ready |
-| 75 – 89  | **B** 🟡 | Minor issues, review recommended |
-| 60 – 74  | **C** 🟠 | Significant issues, fix before training |
-| 40 – 59  | **D** 🔴 | Major problems |
-| 0 – 39   | **F** ⛔ | Do not use for training |
+| 90 - 100 | **A** 🟢 | Production-ready |
+| 75 - 89  | **B** 🟡 | Minor issues, review recommended |
+| 60 - 74  | **C** 🟠 | Significant issues, fix before training |
+| 40 - 59  | **D** 🔴 | Major problems |
+| 0 - 39   | **F** ⛔ | Do not use for training |
 
 ---
 
