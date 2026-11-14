@@ -15,18 +15,12 @@ class CheckSeverity(str, Enum):
 
 class CheckIssue(BaseModel):
     """Single issue found during a check."""
-<<<<<<< HEAD
-=======
 
->>>>>>> f216f1e5bef347f4d7c7b9c2a80dcfc0f5aea755
     column: str | None = None
     message: str
     severity: CheckSeverity = CheckSeverity.WARN
     extra: dict[str, Any] = Field(default_factory=dict)
-<<<<<<< HEAD
-=======
 
->>>>>>> f216f1e5bef347f4d7c7b9c2a80dcfc0f5aea755
 
 class CheckResult(BaseModel):
     """
