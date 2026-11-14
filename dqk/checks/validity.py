@@ -163,4 +163,4 @@ class ValidityCheck(BaseCheck):
         else:
             return 0.0  # STRING / UNKNOWN / CATEGORY - no type check
 
-        return violations / len(series)  # relative to total rows (incl. nulls)
+        return float(violations / len(series))  # relative to total rows (incl. nulls)

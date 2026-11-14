@@ -128,7 +128,7 @@ class UniquenessCheck(BaseCheck):
     ) -> float:
         """Return the fraction of rows that are near-duplicates in any text column."""
         try:
-            from datasketch import MinHash, MinHashLSH  # type: ignore[import]
+            from datasketch import MinHash, MinHashLSH
         except ImportError:
             result.add_issue(
                 "Fuzzy deduplication skipped — install 'datasketch': pip install datasketch",
@@ -153,7 +153,7 @@ class UniquenessCheck(BaseCheck):
                     m.update(t.encode("utf-8"))
                 try:
                     lsh.insert(str(idx), m)
-                    minhashes[int(idx)] = m  # type: ignore[arg-type]
+                    minhashes[int(idx)] = m
                 except ValueError:
                     pass
 

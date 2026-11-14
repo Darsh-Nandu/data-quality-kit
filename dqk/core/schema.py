@@ -48,7 +48,7 @@ class ColumnMeta(BaseModel):
         total = self.extra.get("n_rows")
         if self.n_missing is None or total is None or total == 0:
             return None
-        return self.n_missing / total
+        return float(self.n_missing / total)
 
 
 class DatasetSchema(BaseModel):

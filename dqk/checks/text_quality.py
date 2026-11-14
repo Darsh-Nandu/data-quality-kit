@@ -205,7 +205,7 @@ class TextQualityCheck(BaseCheck):
         n_rows: int,
     ) -> dict[str, float]:
         try:
-            from langdetect import LangDetectException, detect  # type: ignore[import]
+            from langdetect import LangDetectException, detect
         except ImportError:
             result.add_issue(
                 "Language detection skipped — install 'langdetect': pip install langdetect",

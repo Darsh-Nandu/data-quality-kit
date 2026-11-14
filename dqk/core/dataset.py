@@ -93,7 +93,8 @@ class DQKDataset:
 
     @property
     def shape(self) -> tuple[int, int]:
-        return self._df.shape
+        rows, cols = self._df.shape
+        return int(rows), int(cols)
 
     @property
     def columns(self) -> list[str]:

@@ -156,7 +156,7 @@ def _load_parquet(path: str | Path, **kwargs: Any) -> pd.DataFrame:
 
 def _load_huggingface(dataset_id: str, split: str = "train", **kwargs: Any) -> pd.DataFrame:
     try:
-        from datasets import load_dataset  # type: ignore[import]
+        from datasets import load_dataset
     except ImportError as e:
         raise ImportError(
             "Install the 'datasets' package to load from HuggingFace Hub: pip install datasets"
@@ -167,7 +167,7 @@ def _load_huggingface(dataset_id: str, split: str = "train", **kwargs: Any) -> p
 
 def _load_sql(connection_string: str, query: str, **kwargs: Any) -> pd.DataFrame:
     try:
-        from sqlalchemy import create_engine, text  # type: ignore[import]
+        from sqlalchemy import create_engine, text
     except ImportError as e:
         raise ImportError("Install sqlalchemy to load from SQL: pip install sqlalchemy") from e
     engine = create_engine(connection_string)
@@ -178,7 +178,7 @@ def _load_sql(connection_string: str, query: str, **kwargs: Any) -> pd.DataFrame
 def _load_polars(path_or_df: Any, **kwargs: Any) -> pd.DataFrame:
     """Accept a polars DataFrame or path and convert to pandas."""
     try:
-        import polars as pl  # type: ignore[import]
+        import polars as pl
     except ImportError as e:
         raise ImportError("Install polars: pip install polars") from e
 
@@ -211,7 +211,7 @@ def load(
 
     # polars DataFrame passthrough
     try:
-        import polars as pl  # type: ignore[import]
+        import polars as pl
 
         if isinstance(source, pl.DataFrame):
             return _load_polars(source), "polars_dataframe", "polars"

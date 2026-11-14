@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
-from dqk.checks.base import CheckResult, CheckSeverity
+from dqk.checks.base import BaseCheck, CheckResult, CheckSeverity
 
 if TYPE_CHECKING:
     from dqk.core.dataset import DQKDataset
@@ -353,10 +353,10 @@ def _build_fallback_html(report: QualityReport) -> str:
 
 # Check registry
 
-_CHECK_REGISTRY: dict[str, type] = {}
+_CHECK_REGISTRY: dict[str, type[BaseCheck]] = {}
 
 
-def register_check(cls: type) -> type:
+def register_check(cls: type[BaseCheck]) -> type[BaseCheck]:
     """Decorator to register a custom check class."""
     _CHECK_REGISTRY[cls.name] = cls
     return cls
