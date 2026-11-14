@@ -17,6 +17,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from scipy import stats
 
@@ -144,7 +145,7 @@ def _numeric_drift(col: str, ref: pd.Series, cur: pd.Series) -> ColumnDriftResul
 
 
 # Categorical drift
-def _js_divergence(p: np.ndarray, q: np.ndarray) -> float:
+def _js_divergence(p: npt.NDArray[np.float64], q: npt.NDArray[np.float64]) -> float:
     """Jensen–Shannon divergence (0 = identical, 1 = maximally different)."""
     eps = 1e-10
     p = p + eps
